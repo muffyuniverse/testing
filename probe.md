@@ -1,6 +1,6 @@
-line one ALPHA
+line one XX
 # Muffy Codes — CI/CD audit
 
-line three ALPHA
+line three XX
 line four GAMMA
 line five
