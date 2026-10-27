@@ -1,3 +1,3 @@
-The slow blue cat jumps over the lazy dog.
-The slow blue cat jumps again.
+The slow blue cat LEAPT.
+SOLOW blue cat jumps again.
 cates are not cates exactly.
