@@ -1,3 +1,3 @@
-The quick red fox jumps over the lazy dog.
-The quick red fox jumps again.
-foxes are not foxes exactly.
+The quick red cat jumps over the lazy dog.
+The quick red cat jumps again.
+cates are not cates exactly.
