@@ -2,6 +2,6 @@
 
 ## 1. read + grep (line numbers kept)
 
-## 2. edit with a read call as its replacement source
+    {"path": "muffycodes_ci_audit.md", "from": 1, "to": 2}
 
 ## 3. deleting this file
