@@ -1,4 +1,3 @@
 B1
 B2
-B3
-B4
+{"tool": "read", "args": {"path": "README.md"}}
