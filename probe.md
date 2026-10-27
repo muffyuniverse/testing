@@ -1,1 +1,0 @@
-{"tool": "read", "args": {"path": "README.md"}}
