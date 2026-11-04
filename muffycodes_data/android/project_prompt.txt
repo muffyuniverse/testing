@@ -1,0 +1,34 @@
+# This is an Android app
+
+$common
+
+## Building and testing
+
+**Gradle, and never a build you cannot see the result of.** `./gradlew` fails before it compiles
+anything when the SDK is missing, and a pipe swallows that: `./gradlew ... | grep -E "^e: "`
+prints nothing and `echo OK` then reports success on a build that never ran. **Echo the exit
+code**, and never let a pipe be the last thing that decides what happened.
+
+**Unit tests are the fast loop.** Robolectric gives you a real Android environment without a
+device; a feature test extends the project's shared base class rather than building its own
+setup, because a test that duplicates the scaffolding drifts from it and then fails for reasons
+that have nothing to do with what it tests.
+
+**Screenshots are evidence.** If the project can render a screen to an image, do that rather
+than describing the screen in prose — a layout bug is visible and a paragraph about it is not.
+
+## Signing and release
+
+**The signing key is never in the repository.** It lives in a GitHub *environment* called
+`release`, and only a job that names that environment can read it. A repository secret is
+readable by every workflow in the repository, including one you write, so one at that scope
+makes the environment rule decorative.
+
+**The environment is restricted to the branches that build**, so a workflow on any other branch
+cannot use it even if it names it. That is what makes an approval step unnecessary.
+
+**A release that is not signed cannot be installed over an existing one.** If a build suddenly
+produces an APK that will not install, the certificate changed — not the phone.
+
+**Never auto-install or auto-open an artifact.** Opening the system installer is the app's
+business; installing without a press is not.
