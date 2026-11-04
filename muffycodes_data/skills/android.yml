@@ -1,0 +1,115 @@
+# Build, test and release an Android app.
+#
+# Copied from the system project's workflows folder. **This copy is yours**: a step you add
+# here is a step this project runs, and it does not change the template or any other project.
+#
+# What it does, by branch:
+#
+#   a pull request  the tests, and nothing else — the tests are what answer whether a change
+#                   is good, and that answer is the only one needed before a merge
+#   development     the tests and a release build, kept as an artifact you can install
+#   main            everything, including publishing a release
+#
+# The signing key is read from the `release` environment, which the app sets up. It is not a
+# repository secret on purpose: a repository secret is readable by every workflow in the
+# repository, including one the agent writes.
+name: Build and release
+
+on:
+  push:
+    branches: [main, development]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: "The version of the release (for example 1.4)"
+        required: true
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Test
+        run: ./gradlew --no-daemon testDebugUnitTest
+
+  build-release:
+    name: Build the release
+    # **The environment is what makes the signing key reachable**, and only a job that names
+    # it can read the key. The environment is restricted to `main` and `development`, so a
+    # workflow on any other branch cannot use it even if it names it.
+    environment: release
+    if: github.event_name != 'pull_request'
+    needs: test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Build the release
+        env:
+          MUFFY_KEYSTORE_BASE64: ${{ secrets.MUFFY_KEYSTORE_BASE64 }}
+          MUFFY_KEYSTORE_PASSWORD: ${{ secrets.MUFFY_KEYSTORE_PASSWORD }}
+          MUFFY_KEY_ALIAS: ${{ secrets.MUFFY_KEY_ALIAS }}
+          MUFFY_KEY_PASSWORD: ${{ secrets.MUFFY_KEY_PASSWORD }}
+          VERSION_NAME: ${{ inputs.version_name }}
+        run: ./gradlew --no-daemon assembleRelease
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: app/build/outputs/apk/release/app-release.apk
+
+  deliver:
+    name: Deliver
+    needs: [test, build-release]
+    if: |
+      !cancelled()
+      && github.event_name != 'pull_request'
+      && needs.build-release.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: app-release
+          path: apk
+      - name: Publish the release
+        # **Only main publishes.** A development push keeps its APK as an artifact, which is
+        # something to install and look at; it is not a release.
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION_NAME: ${{ inputs.version_name }}
+        run: |
+          if [ -z "${VERSION_NAME:-}" ]; then
+            highest="$(gh release list --limit 100 --json tagName \
+              --jq '[.[] | .tagName | sub("^v";"") | select(test("^[0-9]+$")) | tonumber] | max // 0')"
+            VERSION_NAME="$(( ${highest:-0} + 1 ))"
+          fi
+          gh release create "v${VERSION_NAME}" apk/app-release.apk \
+            --title "v${VERSION_NAME}" --generate-notes
