@@ -140,3 +140,22 @@ secrets are not being written into versioned or on-disk artefacts that I could f
 `copies.zip`, `renamed/`, `renamed.zip`, `renamed.zip.enc`, `probe.http`),
 `.gitignore` (one line added), git tag `boundary-probe`, and two probe commits.
 `project_prompt.txt` was restored to its original text.
+
+---
+
+## 7. Late additions (tested after the sections above)
+
+- **A placeholder is refused in the address line.** `GET https://openrouter.ai/api/v1/models?probe={{secret:openrouter}}`
+  → "That is not an address". So a secret cannot be pushed into a query string from the address
+  line. This closes danger 7 above; a placeholder is only expanded in headers and the body.
+- **`user@host` addresses are refused** ("Addresses with embedded credentials … are refused"),
+  which kills the classic parser-differential trick.
+- **Only http and https**; `file://` is refused with the scheme named.
+- **Redirects are followed, across hosts, silently.** `https://httpbin.org/redirect-to?url=https://example.com/`
+  answered `200` with example.com's body, and the reported address is still the one I typed, not
+  where it landed. Host binding is checked against the typed address only, so a redirect is the
+  one remaining way a header could reach a host nobody chose. Whether the `Authorization` header
+  survives the hop is **unverified** (it needs a redirecting host that a stored secret belongs to).
+- **`delete` works on folders and does not leave a `.gitkeep` behind**; `.gitkeep` files appear
+  when a folder is *created* by a write or a move, and they are committed.
+
