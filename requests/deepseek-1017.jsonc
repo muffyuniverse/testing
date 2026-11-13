@@ -1,0 +1,20 @@
+// The chat request this app ships. It works as soon as a key called @openrouter exists in
+// Settings → Secrets, and it is yours to change: copy it for another model, edit it for
+// another server. The format is explained in shared/schemas/chat/openrouter.jsonc.
+{
+  "address": "https://openrouter.ai/api/v1",
+  "url": "chat/completions",
+  "key": "@openrouter",
+  "target": 60000,
+  "forget": 100000,
+  "body": {
+    "model": "deepseek/deepseek-v4.1-flash-1017",
+    "messages": "{{messages}}",
+    "tools": "{{tools}}",
+    "tool_choice": "{{tool_choice}}",
+    "stream": "{{stream}}",
+    "stream_options": { "include_usage": true },
+    "reasoning_effort": "high",
+    "max_tokens": "{{max_tokens}}"
+  }
+}
