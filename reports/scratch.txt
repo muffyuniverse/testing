@@ -1,0 +1,2 @@
+ALPHA beta ALPHA gamma
+second line with ALPHA too
