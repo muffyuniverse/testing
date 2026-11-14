@@ -1,14 +1,19 @@
 // Testing Factory — one page, no dependencies, no token.
 //
-// Two sources, in this order:
-//   1. build.json — baked by the ship workflow and delivered inside the release asset,
-//      so it always renders, even on a network where api.github.com answers 403.
-//   2. the public GitHub API — used to refresh the same cards with live numbers.
-// If the live call fails, the snapshot stays on screen and says so.
+// Three sources, in this order:
+//   1. build.json — baked by the ship workflow, delivered inside the release asset, and mirrored
+//      to the `site` branch. Always present on a real deployment, so the page renders even where
+//      api.github.com is blocked or rate-limited.
+//   2. the public GitHub API — refreshes the same cards with live numbers.
+//   3. nothing — the page still renders, and says what failed.
+//
+// Every fetch has a hard timeout: a page that waits forever on a blocked host never goes idle,
+// which also means no screenshot of it can ever be taken.
 
 const OWNER = "muffyuniverse";
 const REPO = "testing";
 const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
+const TIMEOUT_MS = 6000;
 
 const $ = (id) => document.getElementById(id);
 
@@ -25,6 +30,35 @@ const when = (iso) => {
 };
 
 const stateOf = (run) => run.conclusion || run.status || "unknown";
+
+async function fetchWithTimeout(url, options = {}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (err) {
+    if (err.name === "AbortError") throw new Error(`no answer in ${TIMEOUT_MS / 1000}s`);
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function getJson(path) {
+  const res = await fetchWithTimeout(path, { headers: { Accept: "application/vnd.github+json" }, cache: "no-store" });
+  if (!res.ok) throw new Error(`${new URL(path, "https://api.github.com").pathname} → HTTP ${res.status}`);
+  return res.json();
+}
+
+async function readBuild() {
+  try {
+    const res = await fetchWithTimeout("build.json", { cache: "no-store" });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
 
 function card(title, rows) {
   const body = rows
@@ -85,31 +119,12 @@ function paint(view) {
   $("loaded").textContent = `read ${new Date().toLocaleTimeString()}`;
 }
 
-async function getJson(path) {
-  const res = await fetch(path, { headers: { Accept: "application/vnd.github+json" }, cache: "no-store" });
-  if (!res.ok) throw new Error(`${new URL(path, "https://api.github.com").pathname} → HTTP ${res.status}`);
-  return res.json();
-}
-
-async function readBuild() {
-  try {
-    const res = await fetch("build.json", { cache: "no-store" });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch {
-    return null;
-  }
-}
-
 async function main() {
   const build = await readBuild();
+  const label = build?.tag ? `snapshot from ${build.tag}` : "snapshot from this page's own files";
 
   if (build && build.snapshot) {
-    paint({
-      ...build.snapshot,
-      label: `snapshot baked into ${build.tag || "the asset"} — live check next…`,
-      build,
-    });
+    paint({ ...build.snapshot, label: `${label} — live check next…`, build });
   }
 
   try {
@@ -149,10 +164,11 @@ async function main() {
       build,
     });
   } catch (err) {
-    if (!build) {
-      paint({ label: `${err.message} — and no build.json next to this page`, labelClass: "bad", build: null });
+    const reason = `live check failed: ${err.message}`;
+    if (build?.snapshot) {
+      paint({ ...build.snapshot, label: `${label} — ${reason}`, labelClass: "bad", build });
     } else {
-      paint({ ...build.snapshot, label: `snapshot only — live check failed: ${err.message}`, labelClass: "bad", build });
+      paint({ label: `${reason}, and no build.json next to this page`, labelClass: "bad", build: null });
     }
   }
 }

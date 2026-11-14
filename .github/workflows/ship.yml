@@ -2,7 +2,8 @@ name: ship
 
 # The rule this workflow exists to keep: code is committed, binaries are not.
 #   build  -> zip app/ into dist/, bake build.json, create the release, upload the zip as an asset
-#   deploy -> download that asset *from the release* and publish it to Pages
+#   deploy -> download that asset *from the release*, publish it to Pages, and mirror the same
+#             files to the `site` branch so a CDN can serve them where github.io cannot be reached
 # dist/ and *.zip are in .gitignore, so a clone contains no build output at all.
 
 on:
@@ -129,6 +130,20 @@ jobs:
           unzip -q "app-${TAG}.zip" -d _site
           echo "--- build.json inside the shipped asset ---"
           cat _site/build.json
+
+      - name: Mirror the same files to the site branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cd _site
+          git init -q -b site
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -qm "site: ${TAG} from ${GITHUB_SHA}"
+          git push -q --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" site
+          echo "mirrored to $(git rev-parse --short HEAD) on branch site"
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
