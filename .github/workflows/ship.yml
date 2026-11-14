@@ -1,7 +1,7 @@
 name: ship
 
 # The rule this workflow exists to keep: code is committed, binaries are not.
-#   build  -> zip app/ into dist/, create the release, upload app-<tag>.zip as an asset
+#   build  -> zip app/ into dist/, bake build.json, create the release, upload the zip as an asset
 #   deploy -> download that asset *from the release* and publish it to Pages
 # dist/ and *.zip are in .gitignore, so a clone contains no build output at all.
 
@@ -29,21 +29,76 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build the bundle
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           mkdir -p dist
           cp -R app/. dist/
+
+          # A snapshot the page can render without calling the API at all:
+          # api.github.com answers 403 to rate-limited and datacentre networks.
+          gh api "repos/$GITHUB_REPOSITORY" > repo.json
+          gh api "repos/$GITHUB_REPOSITORY/commits?per_page=1" > commits.json
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs?per_page=3" > runs.json || echo '{"workflow_runs":[]}' > runs.json
+          gh api "repos/$GITHUB_REPOSITORY/releases?per_page=1" > releases.json || echo '[]' > releases.json
+
           python3 - <<'PY'
           import datetime, json, os
+
+          repo = json.load(open("repo.json"))
+          commits = json.load(open("commits.json")) or [{}]
+          runs = json.load(open("runs.json")).get("workflow_runs", [])[:3]
+          releases = json.load(open("releases.json")) or [{}]
+
+          head = commits[0] or {}
+          commit = head.get("commit") or {}
+          author = commit.get("author") or {}
+          release = releases[0] or {}
+
           meta = {
               "tag": os.environ["TAG"],
               "sha": os.environ["GITHUB_SHA"],
               "built_at": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
+              "snapshot": {
+                  "repo": {
+                      "full_name": repo.get("full_name"),
+                      "html_url": repo.get("html_url"),
+                      "default_branch": repo.get("default_branch"),
+                      "visibility": repo.get("visibility"),
+                      "license": (repo.get("license") or {}).get("spdx_id"),
+                      "open_issues": repo.get("open_issues_count"),
+                  },
+                  "head": {
+                      "message": (commit.get("message") or "").split("\n")[0],
+                      "sha": head.get("sha"),
+                      "author": author.get("name"),
+                      "date": author.get("date"),
+                  },
+                  "release": {
+                      "tag": release.get("tag_name"),
+                      "url": release.get("html_url"),
+                      "assets": len(release.get("assets") or []),
+                      "published_at": release.get("published_at"),
+                  },
+                  "runs": [
+                      {
+                          "name": r.get("name"),
+                          "conclusion": r.get("conclusion"),
+                          "status": r.get("status"),
+                          "sha": r.get("head_sha"),
+                          "created_at": r.get("created_at"),
+                          "url": r.get("html_url"),
+                      }
+                      for r in runs
+                  ],
+              },
           }
           with open("dist/build.json", "w") as fh:
               json.dump(meta, fh, indent=2)
               fh.write("\n")
           PY
+
           ( cd dist && zip -qr "../app-${TAG}.zip" . )
           ls -lh "app-${TAG}.zip"
 
