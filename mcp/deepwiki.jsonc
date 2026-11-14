@@ -1,0 +1,5 @@
+// A public, no-auth Streamable HTTP MCP server, used to test the MCP client:
+// tool listing and one invocation. Named by filename, so this file is "deepwiki".
+{
+  "url": "https://mcp.deepwiki.com/mcp"
+}

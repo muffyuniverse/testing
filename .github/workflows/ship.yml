@@ -1,0 +1,83 @@
+name: ship
+
+# The rule this workflow exists to keep: code is committed, binaries are not.
+#   build  -> zip app/ into dist/, create the release, upload app-<tag>.zip as an asset
+#   deploy -> download that asset *from the release* and publish it to Pages
+# dist/ and *.zip are in .gitignore, so a clone contains no build output at all.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: ship
+  cancel-in-progress: false
+
+env:
+  TAG: ${{ github.ref_type == 'tag' && github.ref_name || format('dev-{0}', github.run_number) }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the bundle
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          cp -R app/. dist/
+          python3 - <<'PY'
+          import datetime, json, os
+          meta = {
+              "tag": os.environ["TAG"],
+              "sha": os.environ["GITHUB_SHA"],
+              "built_at": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
+          }
+          with open("dist/build.json", "w") as fh:
+              json.dump(meta, fh, indent=2)
+              fh.write("\n")
+          PY
+          ( cd dist && zip -qr "../app-${TAG}.zip" . )
+          ls -lh "app-${TAG}.zip"
+
+      - name: Publish the asset, not the file
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release view "$TAG" >/dev/null 2>&1 || \
+            gh release create "$TAG" --title "$TAG" \
+              --notes "Built from ${GITHUB_SHA}. The bundle ships as an asset; the repository holds code only."
+          gh release upload "$TAG" "app-${TAG}.zip" --clobber
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Fetch the asset back out of the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release download "$TAG" -R "$GITHUB_REPOSITORY" --pattern 'app-*.zip' --dir .
+          mkdir -p _site
+          unzip -q "app-${TAG}.zip" -d _site
+          echo "--- build.json inside the shipped asset ---"
+          cat _site/build.json
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4

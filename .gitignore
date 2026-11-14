@@ -1,1 +1,18 @@
+# Non-code never enters the repository.
+# Build output and binaries are published as release assets and fetched from there
+# by the workflow runner, so a clone stays small and diffable.
+dist/
+assets/
+*.zip
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.ico
+*.woff
+*.woff2
+*.pdf
+
+# One-off probe file from an earlier round.
 extra.txt
