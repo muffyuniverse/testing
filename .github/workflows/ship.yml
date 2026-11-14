@@ -1,10 +1,12 @@
 name: ship
 
 # The rule this workflow exists to keep: code is committed, binaries are not.
-#   build  -> zip app/ into dist/, bake build.json, create the release, upload the zip as an asset
+#   build  -> create the release, zip app/ into dist/, bake build.json, upload the zip as an asset
 #   deploy -> download that asset *from the release*, publish it to Pages, and mirror the same
 #             files to the `site` branch so a CDN can serve them where github.io cannot be reached
-# dist/ and *.zip are in .gitignore, so a clone contains no build output at all.
+#   apk    -> download the same asset again, put it in the Android app's assets, build a
+#             debug APK, attach the APK to the same release
+# dist/, *.zip and *.apk are in .gitignore, so a clone contains no build output at all.
 
 on:
   push:
@@ -28,6 +30,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # First, so the snapshot baked below can name this very release.
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release view "$TAG" >/dev/null 2>&1 || \
+            gh release create "$TAG" --title "$TAG" \
+              --notes "Built from ${GITHUB_SHA}. Code lives here; every binary is an asset of this release."
 
       - name: Build the bundle
         env:
@@ -108,9 +120,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh release view "$TAG" >/dev/null 2>&1 || \
-            gh release create "$TAG" --title "$TAG" \
-              --notes "Built from ${GITHUB_SHA}. The bundle ships as an asset; the repository holds code only."
           gh release upload "$TAG" "app-${TAG}.zip" --clobber
 
   deploy:
@@ -151,3 +160,43 @@ jobs:
           path: _site
       - id: deploy
         uses: actions/deploy-pages@v4
+
+  apk:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Put the shipped bundle inside the app
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release download "$TAG" -R "$GITHUB_REPOSITORY" --pattern 'app-*.zip' --dir .
+          mkdir -p android/app/src/main/assets/www
+          unzip -q "app-${TAG}.zip" -d android/app/src/main/assets/www
+          ls -1 android/app/src/main/assets/www
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.7'
+
+      - name: Build the debug APK
+        run: |
+          set -euo pipefail
+          gradle -p android assembleDebug --no-daemon -PversionName="${TAG}"
+          ls -lh android/app/build/outputs/apk/debug/
+
+      - name: Attach the APK to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cp android/app/build/outputs/apk/debug/app-debug.apk "factory-${TAG}-debug.apk"
+          gh release upload "$TAG" "factory-${TAG}-debug.apk" --clobber
+          gh release view "$TAG" --json assets -q '.assets[].name'

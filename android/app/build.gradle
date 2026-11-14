@@ -1,0 +1,33 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'ai.pechka.factory'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'ai.pechka.factory'
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName project.findProperty('versionName') ?: '0.0.0'
+    }
+
+    buildTypes {
+        debug {
+            // Debug signing only: installable straight from the release page, no keystore anywhere.
+            applicationIdSuffix ''
+        }
+    }
+
+    packagingOptions {
+        resources.excludes += ['META-INF/*']
+    }
+}
+
+dependencies {
+    // WebViewAssetLoader: serves the bundled files from an https origin instead of file://,
+    // so fetch("build.json") works and the page keeps its normal security model.
+    implementation 'androidx.webkit:webkit:1.10.0'
+}

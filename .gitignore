@@ -4,6 +4,7 @@
 dist/
 assets/
 *.zip
+*.apk
 *.png
 *.jpg
 *.jpeg
@@ -13,6 +14,13 @@ assets/
 *.woff
 *.woff2
 *.pdf
+
+# Android build output, and the bundle the APK is built from (it comes from the release).
+android/.gradle/
+android/build/
+android/app/build/
+android/app/src/main/assets/www/
+android/local.properties
 
 # One-off probe file from an earlier round.
 extra.txt

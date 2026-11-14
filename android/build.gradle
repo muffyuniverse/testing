@@ -1,0 +1,5 @@
+// One module, one screen, no dependencies beyond the WebView support library.
+// The APK carries the site inside it, so it needs no host and no network to render.
+plugins {
+    id 'com.android.application' version '8.1.4' apply false
+}
