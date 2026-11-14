@@ -1,0 +1,1 @@
+probe: does a new file in requests/ appear in git status, diff and log?
