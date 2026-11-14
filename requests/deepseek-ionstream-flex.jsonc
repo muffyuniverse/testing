@@ -1,0 +1,36 @@
+// DeepSeek V4.1 Flash 1017 on OpenRouter, sent to Ionstream's "flex" endpoint and nothing else.
+// Same form as requests/deepseek-1017.jsonc; the only addition is the "provider" block and
+// service_tier at the end of the body.
+//
+// The endpoint is chosen by its OpenRouter slug: ionstream/flex — Ionstream, flex service tier
+// (lower price, lower processing priority; 77.5 vs 210 micro-dollars per prompt token). A base
+// slug ("ionstream") matches only the standard endpoint, so the tier has to be named: either by
+// the tier-suffixed slug, as here, or by "service_tier" below.
+{
+  "address": "https://openrouter.ai/api/v1",
+  "url": "chat/completions",
+  "key": "@openrouter",
+  "target": 60000,
+  "forget": 100000,
+  "body": {
+    "model": "deepseek/deepseek-v4.1-flash-1017",
+    "messages": "{{messages}}",
+    "tools": "{{tools}}",
+    "tool_choice": "{{tool_choice}}",
+    "stream": "{{stream}}",
+    "stream_options": { "include_usage": true },
+    "reasoning_effort": "high",
+    "max_tokens": "{{max_tokens}}",
+    // Downstream provider. "only" holds one slug, so no other provider can serve this request.
+    // allow_fallbacks is false on purpose: a request fails rather than quietly being answered by
+    // Ionstream's standard endpoint (210 vs 77.5 micro-dollars per prompt token) or by another
+    // provider entirely. Delete both lines to let OpenRouter route normally.
+    "provider": {
+      "only": ["ionstream/flex"],
+      "allow_fallbacks": false
+    },
+    // The tier, stated a second time so it survives an edit to "only" above.
+    // "default" would refuse the flex endpoint; "priority" would buy the dearer, faster one.
+    "service_tier": "flex"
+  }
+}
