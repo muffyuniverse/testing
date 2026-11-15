@@ -82,6 +82,7 @@ def smooth(obj, angle=32.0):
 
 def box(name, size, radius, loc=(0, 0, 0), rot=(0, 0, 0), material=None, segments=8):
     """A slab with every edge rounded — the phone body, the plateau, the buttons."""
+    bpy.ops.object.select_all(action="DESELECT")
     bpy.ops.mesh.primitive_cube_add(size=1.0, location=loc)
     o = bpy.context.object
     o.name = name
@@ -131,6 +132,7 @@ def torus(name, major, minor, loc, material, axis="Y"):
 
 
 def text(name, body, size, loc, rot, material, extrude=0.12 * MM):
+    bpy.ops.object.select_all(action="DESELECT")
     bpy.ops.object.text_add(location=loc)
     o = bpy.context.object
     o.name = name
@@ -148,20 +150,32 @@ def text(name, body, size, loc, rot, material, extrude=0.12 * MM):
 
 # ---------------------------------------------------------------- materials
 
+# Materials must be built after read_factory_settings(): datablocks made before the
+# file is reset are freed, and every later reference to them raises
+# "StructRNA of type Material has been removed".
+
 ice = (0.706, 0.870, 0.851)          # "ice blue" from the product shots
-frame_mat = mat("frame-metal", ice, metallic=1.0, rough=0.26)
-back_mat = mat("back-glass", ice, metallic=0.15, rough=0.16, coat=1.0)
-plateau_mat = mat("plateau", ice, metallic=0.25, rough=0.22, coat=0.8)
-rim_mat = mat("lens-rim", (0.10, 0.11, 0.12), metallic=1.0, rough=0.22)
-glass_mat = mat("lens-glass", (0.015, 0.02, 0.03), metallic=0.35, rough=0.06,
-                transmission=0.35, ior=1.55)
-flash_mat = mat("flash", (1.0, 0.95, 0.86), rough=0.15, emission=(1.0, 0.93, 0.80),
-                strength=1.6)
-bezel_mat = mat("bezel", (0.012, 0.013, 0.015), metallic=0.2, rough=0.10, coat=0.6)
-dark_mat = mat("port", (0.02, 0.02, 0.022), metallic=0.4, rough=0.4)
-accent_mat = mat("accent-red", (0.62, 0.05, 0.05), metallic=0.6, rough=0.3)
-logo_mat = mat("logo", (0.30, 0.33, 0.34), metallic=0.7, rough=0.35)
-glow_mat = mat("screen-glow", (0.25, 0.95, 1.0), emission=(0.30, 0.95, 1.0), strength=6.0)
+frame_mat = back_mat = plateau_mat = rim_mat = glass_mat = None
+flash_mat = bezel_mat = dark_mat = accent_mat = logo_mat = glow_mat = None
+
+
+def make_materials():
+    global frame_mat, back_mat, plateau_mat, rim_mat, glass_mat
+    global flash_mat, bezel_mat, dark_mat, accent_mat, logo_mat, glow_mat
+    frame_mat = mat("frame-metal", ice, metallic=1.0, rough=0.26)
+    back_mat = mat("back-glass", ice, metallic=0.15, rough=0.16, coat=1.0)
+    plateau_mat = mat("plateau", ice, metallic=0.25, rough=0.22, coat=0.8)
+    rim_mat = mat("lens-rim", (0.10, 0.11, 0.12), metallic=1.0, rough=0.22)
+    glass_mat = mat("lens-glass", (0.015, 0.02, 0.03), metallic=0.35, rough=0.06,
+                    transmission=0.35, ior=1.55)
+    flash_mat = mat("flash", (1.0, 0.95, 0.86), rough=0.15,
+                    emission=(1.0, 0.93, 0.80), strength=1.6)
+    bezel_mat = mat("bezel", (0.012, 0.013, 0.015), metallic=0.2, rough=0.10, coat=0.6)
+    dark_mat = mat("port", (0.02, 0.02, 0.022), metallic=0.4, rough=0.4)
+    accent_mat = mat("accent-red", (0.62, 0.05, 0.05), metallic=0.6, rough=0.3)
+    logo_mat = mat("logo", (0.30, 0.33, 0.34), metallic=0.7, rough=0.35)
+    glow_mat = mat("screen-glow", (0.25, 0.95, 1.0), emission=(0.30, 0.95, 1.0),
+                   strength=6.0)
 
 
 def wallpaper():
@@ -207,6 +221,7 @@ def build():
     box("front-glass", (W - 1.0 * MM, 1.0 * MM, H - 1.0 * MM), CORNER - 0.5 * MM,
         loc=(0, -T / 2 + 0.5 * MM, 0), material=bezel_mat)
 
+    bpy.ops.object.select_all(action="DESELECT")
     bpy.ops.mesh.primitive_plane_add(size=1.0, location=(0, -T / 2 - 0.02 * MM, 0))
     screen = bpy.context.object
     screen.name = "display"
@@ -376,6 +391,7 @@ def shoot(cam, name, loc, target, lens, res):
 
 def main():
     bpy.ops.wm.read_factory_settings(use_empty=True)
+    make_materials()
     build()
     report["steps"].append("model")
     cam = studio()
