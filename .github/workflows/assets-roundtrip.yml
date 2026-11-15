@@ -1,23 +1,21 @@
 name: assets-roundtrip
 
 # The repo rule is "code is committed, binaries are not". ship.yml proves the outbound
-# half (build output -> release asset). This proves the inbound half: a runner pulls
-# binaries out of a release and puts them where the app serves them from
-# (android/app/src/main/assets/www/media), so a clone stays small but the app still ships
-# its screenshots and clips.
+# half (build output -> release asset). This proves the inbound half, quickly: can a
+# runner pull the binaries out of a release and hand them to the app as assets?
 #
-# Manual only: it is a test, not part of a release.
+# Manual only, one job, about a minute. It is a test, not part of a release.
 
 on:
   workflow_dispatch:
     inputs:
       tag:
         description: Release tag holding the assets
-        default: assets-v1
+        default: assets-v2
         required: true
-      pattern:
-        description: Glob of assets to fetch
-        default: "*"
+      dest:
+        description: Where the app expects them, inside the WebView root
+        default: android/app/src/main/assets/www/media
         required: true
 
 permissions:
@@ -26,75 +24,113 @@ permissions:
 jobs:
   roundtrip:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     env:
       TAG: ${{ inputs.tag }}
+      DEST: ${{ inputs.dest }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch the assets out of the release
+      - name: Fetch every asset of the release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           mkdir -p fetched
-          gh release download "$TAG" -R "$GITHUB_REPOSITORY" \
-            --pattern "${{ inputs.pattern }}" --dir fetched
-          echo "--- fetched from $TAG ---"
+          gh release download "$TAG" -R "$GITHUB_REPOSITORY" --dir fetched
+          n=$(find fetched -maxdepth 1 -type f | wc -l)
+          echo "downloaded $n file(s) from $TAG"
+          [ "$n" -gt 0 ] || { echo "::error::release $TAG has no assets"; exit 1; }
           ls -l fetched
 
-      - name: Prove they are real binaries, not error pages
+      - name: They must be binaries, not an error page
         run: |
           set -euo pipefail
           shopt -s nullglob
-          files=(fetched/*)
-          [ ${#files[@]} -gt 0 ] || { echo "no assets matched"; exit 1; }
-          for f in "${files[@]}"; do
+          for f in fetched/*; do
             size=$(stat -c%s "$f")
-            [ "$size" -gt 0 ] || { echo "empty file: $f"; exit 1; }
+            [ "$size" -gt 0 ] || { echo "::error::empty file $f"; exit 1; }
             kind=$(file -b "$f")
-            printf '%-18s %8s bytes  %s\n' "$(basename "$f")" "$size" "$kind"
             case "$kind" in
-              *HTML*|*text*)
-                echo "got a page instead of an asset: $f"; exit 1 ;;
+              *HTML*|*ASCII\ text*|*JSON*|*XML*)
+                echo "::error::$f came back as a page, not an asset ($kind)"; exit 1 ;;
             esac
+            printf '%-18s %8s bytes  %s\n' "$(basename "$f")" "$size" "$kind"
           done
-          sha256sum fetched/* | tee fetched.sha256
+          ( cd fetched && sha256sum * | tee ../fetched.sha256 )
 
       - name: Use them as app assets
         run: |
           set -euo pipefail
-          dest=android/app/src/main/assets/www/media
-          mkdir -p "$dest"
-          cp fetched/* "$dest/"
-          python3 - "$dest" <<'PY'
-          import hashlib, json, os, sys
+          case "$DEST" in
+            android/app/src/main/assets/*) ;;
+            *) echo "::error::$DEST is outside the app's asset root"; exit 1 ;;
+          esac
+          mkdir -p "$DEST"
+          cp fetched/* "$DEST"/
+          TAG="$TAG" python3 - "$DEST" <<'PY'
+          import hashlib, json, mimetypes, os, sys
+
           dest = sys.argv[1]
           items = []
           for name in sorted(os.listdir(dest)):
               path = os.path.join(dest, name)
               if not os.path.isfile(path):
                   continue
-              with open(path, "rb") as fh:
-                  digest = hashlib.sha256(fh.read()).hexdigest()
-              items.append({"name": name, "bytes": os.path.getsize(path), "sha256": digest})
-          manifest = {"tag": os.environ.get("TAG", ""), "media": items}
+              blob = open(path, "rb").read()
+              items.append({
+                  "name": name,
+                  "path": f"media/{name}",
+                  "bytes": len(blob),
+                  "mime": mimetypes.guess_type(name)[0] or "application/octet-stream",
+                  "sha256": hashlib.sha256(blob).hexdigest(),
+              })
+          manifest = {"tag": os.environ["TAG"], "source": "release", "media": items}
           with open(os.path.join(dest, "index.json"), "w") as fh:
               json.dump(manifest, fh, indent=2)
               fh.write("\n")
           print(json.dumps(manifest, indent=2))
           PY
-          echo "--- what the app now carries ---"
-          find android/app/src/main/assets/www -maxdepth 2 -type f | sort | head -40
 
-      - name: Check the app can address them by relative path
+      - name: The app can address each one by relative path
         run: |
           set -euo pipefail
-          dest=android/app/src/main/assets/www/media
-          grep -q '"name": "ff-perms-1.jpg"' "$dest/index.json" || { echo "manifest missing jpeg"; exit 1; }
-          grep -q '"name": "deck-clip.mp4"' "$dest/index.json" || { echo "manifest missing mp4"; exit 1; }
-          echo "manifest lists every asset; the WebView reads these as media/<name>"
+          python3 - "$DEST" <<'PY'
+          import hashlib, json, os, re, sys
+
+          dest = sys.argv[1]
+          manifest = json.load(open(os.path.join(dest, "index.json")))
+          media = manifest["media"]
+          assert media, "manifest is empty"
+          safe = re.compile(r"^[A-Za-z0-9._-]+$")
+          for item in media:
+              name = item["name"]
+              assert safe.match(name), f"name is not URL-safe: {name}"
+              assert item["path"] == f"media/{name}", f"bad relative path: {item['path']}"
+              blob = open(os.path.join(dest, name), "rb").read()
+              assert len(blob) == item["bytes"], f"size drift on {name}"
+              assert hashlib.sha256(blob).hexdigest() == item["sha256"], f"hash drift on {name}"
+              print(f"media/{name}  {item['bytes']} bytes  {item['mime']}  ok")
+          print("kinds:", sorted({i["mime"].split("/")[0] for i in media}))
+          PY
+          echo "--- what the app now carries under www/ ---"
+          find android/app/src/main/assets/www -maxdepth 2 -type f | sort
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### assets-roundtrip"
+            echo ""
+            echo "release \`$TAG\` -> \`$DEST\`"
+            echo ""
+            echo '```'
+            cat fetched.sha256 2>/dev/null || echo "(nothing fetched)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Hand back exactly what the app would ship
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: app-assets-media
