@@ -23,6 +23,17 @@ android {
         }
     }
 
+    // Java and Kotlin must agree on a JVM target, or compileDebugKotlin fails outright.
+    // The APK job runs on Temurin 17, so both sides are pinned there.
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
     packagingOptions {
         resources.excludes += ['META-INF/*']
     }
