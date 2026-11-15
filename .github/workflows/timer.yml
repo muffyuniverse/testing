@@ -1,0 +1,36 @@
+name: timer
+
+# A real timer with no third-party dependency: the runner sleeps for you.
+# Public delay services cap at 10 s (httpbin, httpbingo) or are gone (deelay.me,
+# slowwly), and the app's own limits are 60 s foreground / 900 s background, so this
+# is the reliable way to burn wall-clock time between two steps of a job.
+#
+#   dispatch with {"seconds": "300"}   then poll the run until it is completed.
+
+on:
+  workflow_dispatch:
+    inputs:
+      seconds:
+        description: How long to sleep, in seconds (1-900)
+        default: "300"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  sleep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Sleep
+        run: |
+          set -euo pipefail
+          s="${{ inputs.seconds }}"
+          case "$s" in ''|*[!0-9]*) echo "seconds must be a number"; exit 1;; esac
+          if [ "$s" -lt 1 ] || [ "$s" -gt 900 ]; then
+            echo "seconds must be between 1 and 900"; exit 1
+          fi
+          echo "sleeping $s s from $(date -u +%H:%M:%S)"
+          sleep "$s"
+          echo "awake at $(date -u +%H:%M:%S)"

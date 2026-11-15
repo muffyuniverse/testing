@@ -52,7 +52,19 @@ Intermediate steps stay out of the conversation, and the job wakes the agent whe
 finishes. `httpbin.org/delay/N` accepts N up to 10 (httpbingo.org is the same service and
 rejects anything longer with a 400).
 
-## 5. Mind the hourly API budget
+## 5. If a real timer is wanted
+
+`.github/workflows/timer.yml` sleeps on a runner: dispatch it with `{"seconds": "300"}`
+(1-900) and poll the run. No third party, no cap, and it survives an app restart — unlike a
+background job, which `env` reports as `unknown` after one.
+
+Public delay endpoints are not an alternative: `httpbin.org/delay/N`, `httpbingo.org/delay/N`
+and `/drip?duration=N` all reject N > 10 s, `deelay.me` is unreachable from this network and
+`slowwly.robertomurray.co.uk` no longer resolves to the service. The MCP servers configured
+here (Exa, Context7, DeepWiki, Hugging Face, MS Learn, Cloudflare docs) expose search and
+documentation, not timers.
+
+## 6. Mind the hourly API budget
 
 The REST API here is 60 requests per hour, and an artifact download counts heavily. A
 single run cycle — dispatch, find the id, poll, download — can use most of it. When it runs
