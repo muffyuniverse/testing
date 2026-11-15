@@ -27,16 +27,16 @@ T = 8.0 * MM           # thickness (Y)
 H = 163.0 * MM         # height (Z)
 CORNER = 8.5 * MM      # plan-view corner radius
 
-OUT = "renders"
-SAMPLES = 64
-ANIM = False
+# Blender drops the "--" separator from sys.argv on some builds, so positional
+# arguments are unreliable: a request for the turntable was silently ignored because
+# "--" was not in sys.argv at all and every setting fell back to its default.
+# The environment is the dependable path; an "anim" argument is still accepted.
+OUT = os.environ.get("PHONE_OUT", "renders")
+SAMPLES = int(os.environ.get("PHONE_SAMPLES", "64"))
+ANIM = os.environ.get("PHONE_ANIM", "").strip().lower() in ("1", "true", "yes", "anim")
 if "--" in sys.argv:
     extra = sys.argv[sys.argv.index("--") + 1:]
-    if extra:
-        OUT = extra[0]
-    if len(extra) > 1:
-        SAMPLES = int(extra[1])
-    if len(extra) > 2 and extra[2].lower() == "anim":
+    if len(extra) > 2 and extra[2].strip().lower() == "anim":
         ANIM = True
 
 os.makedirs(OUT, exist_ok=True)

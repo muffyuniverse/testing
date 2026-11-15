@@ -48,11 +48,14 @@ jobs:
           blender --version | head -1
 
       - name: Render the asset
+        env:
+          PHONE_OUT: renders
+          PHONE_SAMPLES: ${{ inputs.samples }}
+          PHONE_ANIM: anim
         run: |
           set -euo pipefail
           mkdir -p renders
-          blender -b --factory-startup -noaudio \
-            -P scripts/blender/phone.py -- renders "${{ inputs.samples }}" anim
+          blender -b --factory-startup -noaudio -P scripts/blender/phone.py
           echo "--- what came out ---"
           ls -lh renders
 
@@ -74,10 +77,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh release create "poco-x8-pro-r${{ github.run_number }}" \
-            renders/01-front-hero.png renders/02-back-hero.png renders/03-front-flat.png \
-            renders/04-camera-detail.png renders/05-edge.png renders/turntable.mp4 \
-            renders/poco-x8-pro.gltf renders/poco-x8-pro.bin \
-            renders/poco-x8-pro.glb renders/poco-x8-pro.blend renders/report.json \
+          # a glob, not a fixed list: a missing turntable must not fail the release
+          shopt -s nullglob
+          files=(renders/*)
+          if [ ${#files[@]} -eq 0 ]; then echo "nothing to publish"; exit 1; fi
+          gh release create "poco-x8-pro-r${{ github.run_number }}" "${files[@]}" \
             --title "POCO X8 Pro asset (build ${{ github.run_number }})" \
-            --notes "Modelled in Blender from scripts/blender/phone.py at ${{ github.sha }}. Renders, turntable, GLB and .blend."
+            --notes "Modelled in Blender from scripts/blender/phone.py at ${{ github.sha }}. Renders, turntable, glTF, GLB and .blend."
