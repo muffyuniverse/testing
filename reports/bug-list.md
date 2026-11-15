@@ -147,6 +147,38 @@ distinct files, both preserved.
 
 ---
 
+## 16. `mcp` does not validate arguments against the tool schema — open, new
+
+`web_search_exa` declares `required: ["query","objective"]` and `additionalProperties:false`.
+Calling it with `{"query": "only a query, objective omitted"}` was **accepted** and ran a
+search, returning unrelated pages about prompt engineering (the phrase "missing objective"
+was searched literally).
+
+Expected: refuse with the missing field named, as `http` refuses a malformed request document.
+As it stands a typo'd or forgotten argument silently produces plausible-looking nonsense, and
+the schema printed by `mcp {server}` reads as if it were enforced.
+
+## 17. `mcp` still echoes a remote error body into the conversation — open
+
+A config pointing at a non-MCP URL (`https://example.com/mcp`) answered:
+
+> MCP server answered HTTP 405: `<!doctype html><html lang="en">…Example Domain…`
+
+Tool-level errors are clean (`MCP error: Unknown tool: no_such_tool`), so this is the
+transport-error path only — but that is exactly where a mistyped or hostile URL lands, and the
+page's HTML goes straight into the agent's context.
+
+Old bug 16 from boundary-report.md; the upgrade fixed the tool-level case, not this one.
+
+## 18. `{"servers": {…}}` configs are listed but not invocable — partial
+
+`mcp` listed `wrapped (mcp/wrapped.jsonc)` as a configured server; invoking it answered
+"mcp/wrapped.jsonc has no `url` field". The flat `{"url": …}` form works, and a Markdown
+```` ```mcp ```` block works. Listing accepts shapes that invocation rejects — old bug 15,
+fixed only for the flat form.
+
+---
+
 ## Confirmed healthy in this round (not bugs)
 
 - Selectors: ambiguous `original` (named the count and the fix), out-of-range lines
@@ -169,3 +201,11 @@ distinct files, both preserved.
 - `diff` between two revisions; `restore {keep:true}` on a deleted path; local `tag create`.
 - `mcp`: listing, invocation, `format:json`; `app_rpc` template; `ssh`/`sftp` refusals name
   the secret type and binding they need.
+- `mcp` results are filed under timestamped names, so repeated calls to one tool never collide
+  (unlike `http`, bug 15); large answers truncate inline with a pointer to the full file;
+  unknown tools answer `MCP error: Unknown tool: …`; a Markdown config's `token: {{secret:…}}`
+  is refused before sending when the secret is not bound to that host.
+- Keyless MCP servers that answered real tool calls: `exa` (web search + fetch),
+  `exa-advanced` (domain/date/category filters via `?tools=`), `context7` (library docs),
+  `mslearn` (Microsoft docs + fetch + code samples), `cloudflare-docs` (product docs),
+  `deepwiki` (indexed repos).

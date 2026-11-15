@@ -1,0 +1,4 @@
+// Exa web search — testing whether the public endpoint answers without a key.
+{
+  "url": "https://mcp.exa.ai/mcp"
+}

@@ -19,8 +19,8 @@ retest something I say so. The previous round's findings are in
 | 8 | `diff` called small text files "binary" | **fixed.** A 1-line→1-line change renders `+1 −1` with the file at `agent/git/`. |
 | 9 | sealed archive could not be opened | **fixed for the important part.** `seal:false` + `key` opens it; a wrong key fails as "Authentication failed: this key does not open it, or the sealed file was altered." See the naming caveat in §2. |
 | 11 | cannot seal a folder, unhelpful error | **fixed as a message:** "`app` is a folder. `archive` it first, then seal the zip — sealing a folder would have to invent a file." |
-| 15 | `mcp` listing and invocation disagreed | **fixed** for the flat `{"url": …}` form: `mcp/deepwiki.jsonc` listed, and `read_wiki_structure` invoked. |
-| 16 | `mcp` errors echoed raw remote body | **improved.** The failure came back as one clean line ("Repository not found. Visit … to index it") plus a saved file, no HTML dump. |
+| 15 | `mcp` listing and invocation disagreed | **fixed for the flat form only.** `mcp/deepwiki.jsonc` listed and `read_wiki_structure` invoked; a `{"servers": {…}}` wrapper is still listed as configured and then fails with "has no `url` field" (bug-list #18). |
+| 16 | `mcp` errors echoed raw remote body | **improved, not fixed.** MCP-level failures are clean ("Repository not found…", "MCP error: Unknown tool: …"), but an HTTP-level failure still pastes the remote body into the context — a 405 from example.com put its page HTML there (bug-list #17). |
 | 17 | a one-line file could not be paged | **fixed.** `read {char_from, char_count}` pulled 300 characters out of a 769 kB single-line JSON. |
 
 Not retested, so still **unknown**: 1 (`push` claiming success without a commit — I did not

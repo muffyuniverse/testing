@@ -1,0 +1,5 @@
+// Exa with the advanced-search tool opted in through the URL's `tools` parameter.
+// The explicit list replaces the defaults, so web_search_exa and web_fetch_exa are included.
+{
+  "url": "https://mcp.exa.ai/mcp?tools=web_search_exa,web_fetch_exa,web_search_advanced_exa"
+}
