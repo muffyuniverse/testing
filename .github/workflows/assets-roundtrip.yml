@@ -1,0 +1,102 @@
+name: assets-roundtrip
+
+# The repo rule is "code is committed, binaries are not". ship.yml proves the outbound
+# half (build output -> release asset). This proves the inbound half: a runner pulls
+# binaries out of a release and puts them where the app serves them from
+# (android/app/src/main/assets/www/media), so a clone stays small but the app still ships
+# its screenshots and clips.
+#
+# Manual only: it is a test, not part of a release.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag holding the assets
+        default: assets-v1
+        required: true
+      pattern:
+        description: Glob of assets to fetch
+        default: "*"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  roundtrip:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ inputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch the assets out of the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p fetched
+          gh release download "$TAG" -R "$GITHUB_REPOSITORY" \
+            --pattern "${{ inputs.pattern }}" --dir fetched
+          echo "--- fetched from $TAG ---"
+          ls -l fetched
+
+      - name: Prove they are real binaries, not error pages
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          files=(fetched/*)
+          [ ${#files[@]} -gt 0 ] || { echo "no assets matched"; exit 1; }
+          for f in "${files[@]}"; do
+            size=$(stat -c%s "$f")
+            [ "$size" -gt 0 ] || { echo "empty file: $f"; exit 1; }
+            kind=$(file -b "$f")
+            printf '%-18s %8s bytes  %s\n' "$(basename "$f")" "$size" "$kind"
+            case "$kind" in
+              *HTML*|*text*)
+                echo "got a page instead of an asset: $f"; exit 1 ;;
+            esac
+          done
+          sha256sum fetched/* | tee fetched.sha256
+
+      - name: Use them as app assets
+        run: |
+          set -euo pipefail
+          dest=android/app/src/main/assets/www/media
+          mkdir -p "$dest"
+          cp fetched/* "$dest/"
+          python3 - "$dest" <<'PY'
+          import hashlib, json, os, sys
+          dest = sys.argv[1]
+          items = []
+          for name in sorted(os.listdir(dest)):
+              path = os.path.join(dest, name)
+              if not os.path.isfile(path):
+                  continue
+              with open(path, "rb") as fh:
+                  digest = hashlib.sha256(fh.read()).hexdigest()
+              items.append({"name": name, "bytes": os.path.getsize(path), "sha256": digest})
+          manifest = {"tag": os.environ.get("TAG", ""), "media": items}
+          with open(os.path.join(dest, "index.json"), "w") as fh:
+              json.dump(manifest, fh, indent=2)
+              fh.write("\n")
+          print(json.dumps(manifest, indent=2))
+          PY
+          echo "--- what the app now carries ---"
+          find android/app/src/main/assets/www -maxdepth 2 -type f | sort | head -40
+
+      - name: Check the app can address them by relative path
+        run: |
+          set -euo pipefail
+          dest=android/app/src/main/assets/www/media
+          grep -q '"name": "ff-perms-1.jpg"' "$dest/index.json" || { echo "manifest missing jpeg"; exit 1; }
+          grep -q '"name": "deck-clip.mp4"' "$dest/index.json" || { echo "manifest missing mp4"; exit 1; }
+          echo "manifest lists every asset; the WebView reads these as media/<name>"
+
+      - name: Hand back exactly what the app would ship
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-assets-media
+          path: android/app/src/main/assets/www/media
+          if-no-files-found: error
