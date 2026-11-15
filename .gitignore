@@ -24,3 +24,4 @@ android/local.properties
 
 # One-off probe file from an earlier round.
 extra.txt
+probe/ignored.txt
