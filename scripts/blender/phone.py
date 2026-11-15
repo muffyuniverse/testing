@@ -209,8 +209,8 @@ def make_materials():
     global frame_mat, back_mat, plateau_mat, rim_mat, glass_mat
     global flash_mat, bezel_mat, dark_mat, accent_mat, logo_mat, glow_mat
     frame_mat = mat("frame-metal", ice, metallic=1.0, rough=0.24)
-    back_mat = mat("back-glass", ice, metallic=0.35, rough=0.12, coat=1.0)
-    plateau_mat = mat("plateau", ice, metallic=0.45, rough=0.18, coat=0.9)
+    back_mat = mat("back-glass", ice, metallic=0.12, rough=0.15, coat=0.55)
+    plateau_mat = mat("plateau", ice, metallic=0.30, rough=0.16, coat=0.70)
     rim_mat = mat("lens-rim", (0.08, 0.09, 0.10), metallic=1.0, rough=0.18)
     glass_mat = mat("lens-glass", (0.010, 0.014, 0.022), metallic=0.30, rough=0.05,
                     transmission=0.30, ior=1.55)
@@ -220,8 +220,8 @@ def make_materials():
     dark_mat = mat("port", (0.02, 0.02, 0.022), metallic=0.4, rough=0.4)
     accent_mat = mat("accent-red", (0.62, 0.05, 0.05), metallic=0.6, rough=0.3)
     logo_mat = mat("logo", (0.16, 0.18, 0.19), metallic=0.7, rough=0.3)
-    glow_mat = mat("screen-glow", (0.08, 0.50, 0.66),
-                   emission=(0.35, 0.90, 1.0), strength=2.2)
+    glow_mat = mat("screen-glow", (0.05, 0.32, 0.42),
+                   emission=(0.30, 0.85, 1.0), strength=1.6)
 
 
 def wallpaper():
@@ -231,9 +231,9 @@ def wallpaper():
     nt = m.node_tree
     nodes, links = nt.nodes, nt.links
     bsdf = nodes["Principled BSDF"]
-    set_in(bsdf, ["Roughness"], 0.22)
-    set_in(bsdf, ["Metallic"], 0.55)
-    set_in(bsdf, ["Emission Strength"], 0.85)
+    set_in(bsdf, ["Roughness"], 0.18)
+    set_in(bsdf, ["Metallic"], 0.45)
+    set_in(bsdf, ["Emission Strength"], 0.55)
 
     coord = nodes.new("ShaderNodeTexCoord")
     dot = nodes.new("ShaderNodeVectorMath")
@@ -249,14 +249,14 @@ def wallpaper():
     ramp = nodes.new("ShaderNodeValToRGB")
     cr = ramp.color_ramp
     cr.elements[0].position = 0.0
-    cr.elements[0].color = (0.010, 0.016, 0.030, 1)
+    cr.elements[0].color = (0.006, 0.010, 0.020, 1)
     cr.elements[1].position = 1.0
-    cr.elements[1].color = (0.012, 0.020, 0.038, 1)
-    stops = [(0.38, (0.030, 0.055, 0.085)),
-             (0.47, (0.120, 0.230, 0.300)),
-             (0.52, (0.480, 0.700, 0.780)),   # the lit edge of the metal band
-             (0.57, (0.060, 0.120, 0.170)),
-             (0.70, (0.020, 0.035, 0.060))]
+    cr.elements[1].color = (0.008, 0.012, 0.024, 1)
+    stops = [(0.38, (0.018, 0.032, 0.052)),
+             (0.47, (0.070, 0.135, 0.185)),
+             (0.52, (0.330, 0.520, 0.600)),   # the lit edge of the metal band
+             (0.57, (0.038, 0.075, 0.115)),
+             (0.70, (0.012, 0.022, 0.040))]
     for pos, col in stops:
         e = cr.elements.new(pos)
         e.color = (*col, 1)
@@ -282,14 +282,12 @@ def build():
                  CORNER - 0.5 * MM, bezel_mat, seg=12, rim=0.3 * MM
                  ).location = (0, -T / 2 + 0.5 * MM, 0)
 
-    bpy.ops.object.select_all(action="DESELECT")
-    bpy.ops.mesh.primitive_plane_add(size=1.0, location=(0, -T / 2 - 0.02 * MM, 0))
-    screen = bpy.context.object
-    screen.name = "display"
-    screen.scale = (W - 3.4 * MM, H - 6.6 * MM, 1)
-    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-    screen.rotation_euler = (math.radians(90), 0, 0)
-    screen.data.materials.append(wallpaper())
+    # The display is a rounded slab, not a quad: square corners would poke out of the
+    # rounded body. Its mesh sits in the X/Z plane, so the wallpaper's diagonal is
+    # simply the dot product with (0.7071, 0, 0.7071) in object space.
+    display = rounded_slab("display", W - 3.4 * MM, 0.3 * MM, H - 6.6 * MM,
+                           CORNER - 1.6 * MM, wallpaper(), seg=12, rim=0.10 * MM)
+    display.location = (0, -T / 2 - 0.02 * MM, 0)
 
     # Punch-hole camera.
     cyl("punch-hole", 1.35 * MM, 0.4 * MM, (0, -T / 2 - 0.06 * MM, H / 2 - 7.0 * MM),
@@ -298,9 +296,9 @@ def build():
         (0, -T / 2 - 0.16 * MM, H / 2 - 7.0 * MM), glass_mat, axis="Y", verts=48)
 
     # The glowing capsule the wallpaper shows off.
-    glow = box("screen-glow", (9.0 * MM, 0.35 * MM, 24.0 * MM), 4.5 * MM,
-               loc=(-2.0 * MM, -T / 2 - 0.25 * MM, 8.0 * MM), material=glow_mat,
-               segments=12)
+    glow = rounded_slab("screen-glow", 9.0 * MM, 0.25 * MM, 24.0 * MM, 4.5 * MM,
+                        glow_mat, seg=16, rim=0.08 * MM)
+    glow.location = (-2.0 * MM, -T / 2 - 0.38 * MM, 8.0 * MM)
     glow.rotation_euler = (0, math.radians(-20), 0)
 
     # Camera plateau, upper part of the back.
@@ -419,6 +417,9 @@ def studio():
     except Exception:
         pass
     scene.cycles.max_bounces = 10
+    # Clamp glossy fireflies: without it the coat on the glass back goes speckled.
+    scene.cycles.sample_clamp_indirect = 3.0
+    report["denoise"] = bool(scene.cycles.use_denoising)
     scene.render.use_persistent_data = True
     scene.render.resolution_percentage = 100
     scene.render.image_settings.file_format = "PNG"
