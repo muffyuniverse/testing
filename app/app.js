@@ -166,7 +166,9 @@ async function main() {
   } catch (err) {
     const reason = `live check failed: ${err.message}`;
     if (build?.snapshot) {
-      paint({ ...build.snapshot, label: `${label} — ${reason}`, labelClass: "bad", build });
+      // A snapshot is the normal path on a rate-limited or offline network. Say so quietly:
+      // the page has real data, so a red failure banner would be misleading.
+      paint({ ...build.snapshot, label: `${label} · live unavailable`, build });
     } else {
       paint({ label: `${reason}, and no build.json next to this page`, labelClass: "bad", build: null });
     }
