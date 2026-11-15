@@ -640,4 +640,3 @@ class PechkaDebugProvider : ContentProvider() {
     override fun delete(u: Uri, s: String?, a: Array<out String>?): Int = 0
     override fun update(u: Uri, v: ContentValues?, s: String?, a: Array<out String>?): Int = 0
 }
-```
