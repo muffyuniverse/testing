@@ -48,6 +48,9 @@ jobs:
           set -euo pipefail
           mkdir -p dist
           cp -R app/. dist/
+          # The client decks ride along, so Pages serves them at /decks/ and a prospect
+          # gets a URL instead of a file to download.
+          cp -R decks dist/decks
 
           # A snapshot the page can render without calling the API at all:
           # api.github.com answers 403 to rate-limited and datacentre networks.
