@@ -179,6 +179,26 @@ fixed only for the flat form.
 
 ---
 
+## 19. `browse` returns the whole page text even when `eval` asks for one value — open, new
+
+A DuckDuckGo results page costs ~8 kB of context per call *plus* the `## eval` answer. A dozen
+such calls were the largest single context cost of this session, and context size is what forces
+pruning mid-task. Requested: JSON-only eval, page text only on explicit request.
+
+## 20. A CAPTCHA page is reported as status 0 content — open, new
+
+After ~5 DuckDuckGo queries the browser got "Select all squares containing a duck" — returned as
+`status 0` with plausible text and no marker. Reddit, by contrast, failed honestly with 403. An
+agent would quote the puzzle as search results. See [bot-walls.md](bot-walls.md).
+
+## 21. The browser has no session — open, new
+
+Cookies and `localStorage` do persist between calls (measured), but the page does not: scroll,
+typed text, modals and JS variables are lost, there is no `wait_for`, no identity control and no
+state export. Contract and a 10-case test plan: [browser-session-tool-spec.md](browser-session-tool-spec.md).
+
+---
+
 ## Confirmed healthy in this round (not bugs)
 
 - Selectors: ambiguous `original` (named the count and the fix), out-of-range lines
