@@ -77,6 +77,7 @@ jobs:
           gh release create "poco-x8-pro-r${{ github.run_number }}" \
             renders/01-front-hero.png renders/02-back-hero.png renders/03-front-flat.png \
             renders/04-camera-detail.png renders/05-edge.png renders/turntable.mp4 \
+            renders/poco-x8-pro.gltf renders/poco-x8-pro.bin \
             renders/poco-x8-pro.glb renders/poco-x8-pro.blend renders/report.json \
             --title "POCO X8 Pro asset (build ${{ github.run_number }})" \
             --notes "Modelled in Blender from scripts/blender/phone.py at ${{ github.sha }}. Renders, turntable, GLB and .blend."

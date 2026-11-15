@@ -506,12 +506,22 @@ def main():
     bpy.ops.wm.save_as_mainfile(filepath=blend)
     report["blend"] = os.path.basename(blend)
 
+    # glTF twice: .glb is one self-contained binary file, .gltf is the readable
+    # JSON plus a .bin, which is what most web viewers and engines import.
     glb = os.path.join(OUT, "poco-x8-pro.glb")
     try:
         bpy.ops.export_scene.gltf(filepath=glb, export_format="GLB")
         report["glb"] = os.path.basename(glb)
     except Exception:
         report["glb_error"] = traceback.format_exc()
+
+    gltf = os.path.join(OUT, "poco-x8-pro.gltf")
+    try:
+        bpy.ops.export_scene.gltf(filepath=gltf, export_format="GLTF_SEPARATE",
+                                  export_apply=True)
+        report["gltf"] = os.path.basename(gltf)
+    except Exception:
+        report["gltf_error"] = traceback.format_exc()
     report["steps"].append("export")
     report["ok"] = True
 
