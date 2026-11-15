@@ -1,5 +1,7 @@
 plugins {
     id 'com.android.application'
+    // Compiles the debug-only RPC provider (src/debug/.../*.kt). No Kotlin in main sources.
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {

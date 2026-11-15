@@ -2,4 +2,6 @@
 // The APK carries the site inside it, so it needs no host and no network to render.
 plugins {
     id 'com.android.application' version '8.1.4' apply false
+    // The debug-only RPC provider is Kotlin; the app itself stays Java.
+    id 'org.jetbrains.kotlin.android' version '1.9.24' apply false
 }

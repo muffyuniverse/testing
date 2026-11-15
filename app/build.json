@@ -1,0 +1,28 @@
+{
+  "tag": "dev-local",
+  "sha": "9c8a5d3",
+  "built_at": "2026-11-15T02:30:00Z",
+  "snapshot": {
+    "repo": {
+      "full_name": "muffyuniverse/testing",
+      "html_url": "https://github.com/muffyuniverse/testing",
+      "default_branch": "main",
+      "visibility": "public",
+      "license": "GPL-3.0",
+      "open_issues": 0
+    },
+    "head": {
+      "message": "Add a tap-target demo page and the shot-and-tap recipe",
+      "sha": "9c8a5d3",
+      "author": "Pechka",
+      "date": "2026-11-15T02:22:00Z"
+    },
+    "release": {
+      "tag": "v1.0.3",
+      "url": "https://github.com/muffyuniverse/testing/releases/tag/v1.0.3",
+      "assets": 2,
+      "published_at": "2026-11-14T15:31:00Z"
+    },
+    "runs": []
+  }
+}
