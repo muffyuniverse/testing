@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Clip duration probe</title>
+<style>
+  body { background:#0b0d10; color:#e7edf3; font:15px system-ui,sans-serif; padding:20px }
+  video { width:100%; max-width:420px; display:block; margin:12px 0;
+          border:1px solid #262d36; border-radius:12px }
+  h2 { font-size:14px; color:#8b98a5; margin:18px 0 0 }
+</style>
+</head>
+<body>
+<h1>Clip duration probe</h1>
+<p>Drop a recording next to this page as <code>clip.mp4</code>; the video element reports the
+container's own timing, which is what an editor reads.</p>
+<video id="v" src="clip.mp4" muted playsinline controls></video>
+</body>
+</html>
