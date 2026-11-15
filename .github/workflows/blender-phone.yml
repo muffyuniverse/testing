@@ -11,6 +11,10 @@ on:
         description: Cycles samples per render
         default: "64"
         required: false
+      release:
+        description: Publish the renders as a release asset (yes/no)
+        default: "no"
+        required: false
 
 permissions:
   contents: read
@@ -19,6 +23,8 @@ jobs:
   render:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    permissions:
+      contents: write   # only used by the optional release step below
     steps:
       - uses: actions/checkout@v4
 
@@ -61,3 +67,16 @@ jobs:
           name: poco-x8-pro-render
           path: renders
           if-no-files-found: warn
+
+      - name: Publish the asset as a release
+        if: ${{ inputs.release == 'yes' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release create "poco-x8-pro-r${{ github.run_number }}" \
+            renders/01-front-hero.png renders/02-back-hero.png renders/03-front-flat.png \
+            renders/04-camera-detail.png renders/05-edge.png renders/turntable.mp4 \
+            renders/poco-x8-pro.glb renders/poco-x8-pro.blend renders/report.json \
+            --title "POCO X8 Pro asset (build ${{ github.run_number }})" \
+            --notes "Modelled in Blender from scripts/blender/phone.py at ${{ github.sha }}. Renders, turntable, GLB and .blend."
