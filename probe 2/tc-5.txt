@@ -1,4 +1,0 @@
-num_count=2
-num_total=<none>
-bool=true
-str=live; changes between pages can cause repeats or omissions
