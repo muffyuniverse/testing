@@ -111,6 +111,23 @@ The test page fills itself from the GitHub API after load. `browse` returned
 URL showed the loaded repository data. `wait` has `dom`/`load`/`idle`/`done`, none of which is
 network-idle. `browse {eval: "…"}` can force a wait and did return the loaded state.
 
+## 14. `shot {full:true}` captures less than the viewport — open, new
+
+Same page, same moment, two captures:
+
+- `shot {full:true}` → 768×929, cut off mid-card (the `license` row is clipped at the bottom
+  edge; the last-commit, release and workflows sections are missing).
+- `shot` (default) → 768×1365, showing open issues, the last-commit card and more.
+
+`browse {eval}` on that page reported `scrollHeight:590, innerHeight:590, innerWidth:332,
+dpr:3.25`. The default image matches 332×590 CSS at ~2.31 scale; the full image matches
+~332×402 CSS, about 68% of the document — a height measured before the page finished growing
+as its fetch resolved. A second full capture earlier in the session was also exactly 768×929.
+
+The flag is described as "captures beyond the screen"; it returned less than the screen.
+An agent showing "the whole page" would show a truncated one, and the truncation is invisible
+without comparing dimensions.
+
 ---
 
 ## Confirmed healthy in this round (not bugs)
@@ -127,7 +144,10 @@ network-idle. `browse {eval: "…"}` can force a wait and did return the loaded 
 - `query`: `ATTACH` refused, one statement per call, read-write namespaces with
   `INSERT … RETURNING`, `direct` + `name` writes a CSV, `roll_hour` spend.
 - `list`: `total`, cursor paging (`next_cursor`, `complete`), `not:true`, `history`.
-- `background`: `list` with states, and a failing job keeps status `1` in its file.
+- `background`: `list` with states, and a failing job keeps status `1` in its file; a
+  backgrounded `pipe` runs its steps sequentially (four 4-second fetches) and files its final
+  result. Note: `background` takes the chain as `{"tool":"pipe","args":{"steps":[…]}}` — it
+  rejects a bare `steps` argument.
 - `archive`: zip, tar.gz, single-file gz, seal/unseal, wrong-key auth failure.
 - `diff` between two revisions; `restore {keep:true}` on a deleted path; local `tag create`.
 - `mcp`: listing, invocation, `format:json`; `app_rpc` template; `ssh`/`sftp` refusals name
