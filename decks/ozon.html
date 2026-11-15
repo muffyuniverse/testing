@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Ozon Integration — client deck</title>
 <meta name="description" content="Contractor pitch deck: Ozon marketplace integration for sellers.">
-<link rel="stylesheet" href="src/deck.css">
+<link rel="stylesheet" href="src/deck.css?v=3">
 </head>
 <body data-deck="ozon">
 
@@ -154,50 +154,22 @@
     <div class="eyebrow reveal" style="--i:0" data-en="How it works" data-ru="Как это работает"></div>
     <h2><span class="kin" style="--i:1"><span data-en="Your systems on the left. Ozon on the right." data-ru="Ваши системы слева. Ozon справа."></span></span></h2>
 
-    <svg class="flow" viewBox="0 0 1000 320" role="img" aria-label="Integration architecture">
-      <defs>
-        <linearGradient id="wireGrad" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stop-color="#3d8bff" stop-opacity=".25"/>
-          <stop offset=".5" stop-color="#3d8bff" stop-opacity="1"/>
-          <stop offset="1" stop-color="#ff2d78" stop-opacity=".3"/>
-        </linearGradient>
-      </defs>
-
-      <path id="w1" class="wire hot" pathLength="1" d="M280 145 H 360" style="--i:0"/>
-      <path id="w2" class="wire hot" pathLength="1" d="M640 145 H 720" style="--i:1"/>
-      <path class="wire" pathLength="1" d="M860 205 C 860 282, 140 282, 140 205"
-            stroke-dasharray="1" style="--i:2"/>
-
-      <g class="node" style="--i:0">
-        <rect class="box" x="0" y="80" width="280" height="125" rx="18"/>
-        <text class="t-lg" x="140" y="122" data-en="Your systems" data-ru="Ваши системы"></text>
-        <text class="t-sm" x="140" y="152" data-en="1C · ERP · WMS · warehouse" data-ru="1C · ERP · WMS · склад"></text>
-        <text class="t-sm" x="140" y="176" data-en="the source of truth" data-ru="источник правды"></text>
-      </g>
-
-      <g class="node" style="--i:1">
-        <rect class="box cool" x="360" y="80" width="280" height="125" rx="18"/>
-        <text class="t-lg" x="500" y="122" data-en="Integration hub" data-ru="Интеграционный слой"></text>
-        <text class="t-sm" x="500" y="152" data-en="queue · retry · cache" data-ru="очередь · ретраи · кеш"></text>
-        <text class="t-sm" x="500" y="176" data-en="rate-limit aware" data-ru="учитывает лимиты"></text>
-      </g>
-
-      <g class="node" style="--i:2">
-        <rect class="box hot" x="720" y="80" width="280" height="125" rx="18"/>
-        <text class="t-lg" x="860" y="122" data-en="Ozon Seller API" data-ru="Ozon Seller API"></text>
-        <text class="t-sm" x="860" y="152" data-en="products · prices" data-ru="товары · цены"></text>
-        <text class="t-sm" x="860" y="176" data-en="postings · returns" data-ru="отправления · возвраты"></text>
-      </g>
-
-      <text class="t-sm" x="500" y="308" style="font-size:17px" data-en="status updates flow back the same way" data-ru="статусы возвращаются тем же путём"></text>
-
-      <circle class="packet" r="3.6" cx="0" cy="145">
-        <animateMotion dur="2.2s" begin="0s" repeatCount="indefinite"><mpath href="#w1"/></animateMotion>
-      </circle>
-      <circle class="packet" r="3.6" cx="0" cy="145">
-        <animateMotion dur="2.2s" begin="1.1s" repeatCount="indefinite"><mpath href="#w2"/></animateMotion>
-      </circle>
-    </svg>
+    <div class="flowv" role="img" aria-label="Integration architecture">
+      <div class="fv-n"><b data-en="Your systems" data-ru="Ваши системы"></b>
+        <span data-en="1C · ERP · WMS" data-ru="1C · ERP · WMS · склад"></span>
+        <span data-en="the source of truth" data-ru="источник правды"></span></div>
+      <div class="fv-w" aria-hidden="true"></div>
+      <div class="fv-n cool"><b data-en="Integration hub" data-ru="Интеграционный слой"></b>
+        <span data-en="queue · retry · cache" data-ru="очередь · ретраи · кеш"></span>
+        <span data-en="rate-limit aware" data-ru="учитывает лимиты"></span></div>
+      <div class="fv-w" aria-hidden="true"></div>
+      <div class="fv-n hot"><b data-en="Ozon Seller API" data-ru="Ozon Seller API"></b>
+        <span data-en="products · prices" data-ru="товары · цены"></span>
+        <span data-en="postings · returns" data-ru="отправления · возвраты"></span></div>
+    </div>
+    <p class="small" style="margin-top:.6em"
+       data-en="status updates flow back the same way"
+       data-ru="статусы возвращаются тем же путём"></p>
 
     <div class="grid g3" style="margin-top:.6em">
       <div class="reveal" style="--i:9"><div class="tag" data-en="Auth" data-ru="Доступ"></div>
@@ -476,6 +448,6 @@
 <div class="notesbar"><div class="nt">Presenter notes</div><div class="nb"></div></div>
 <div class="overview"></div>
 
-<script src="src/deck.js"></script>
+<script src="src/deck.js?v=2"></script>
 </body>
 </html>

@@ -449,3 +449,43 @@ body.capture .hud,body.capture .bar,body.capture .grain{display:none!important}
   .flow .t-sm{font-size:24px}
   .flow .t-md{font-size:30px}
 }
+
+
+/* ---------- flow diagram ----------
+   A stage list, not a drawing. It stacks on a phone and runs across a wide
+   screen, so a diagram always fills the slide instead of shrinking to a
+   strip of unreadable labels. */
+.flowv{display:flex;flex-direction:column;align-items:stretch;margin-top:.5em}
+.flowv .fv-n{
+  position:relative;display:flex;flex-direction:column;gap:.12em;flex:0 0 auto;
+  padding:.62em .85em;border-radius:14px;
+  border:1px solid rgba(255,255,255,.13);
+  background:linear-gradient(165deg,rgba(255,255,255,.075),rgba(255,255,255,.02));
+}
+.flowv .fv-n b{font-size:clamp(13px,2.2vmin,19px);font-weight:750;letter-spacing:-.01em;line-height:1.15}
+.flowv .fv-n span{font-size:clamp(10px,1.7vmin,14px);font-weight:600;color:#a8b1c6;line-height:1.25}
+.flowv .fv-n.cool{
+  border-color:rgba(124,92,255,.5);
+  background:linear-gradient(165deg,rgba(124,92,255,.2),rgba(124,92,255,.04));
+}
+.flowv .fv-n.hot{
+  border-color:rgba(94,234,212,.5);
+  background:linear-gradient(165deg,rgba(94,234,212,.17),rgba(94,234,212,.03));
+}
+.flowv .fv-w{
+  position:relative;flex:0 0 auto;align-self:center;
+  width:2px;height:clamp(14px,2.4vmin,24px);background:rgba(255,255,255,.16);
+}
+.flowv .fv-w::after{
+  content:"";position:absolute;left:-2px;top:0;width:6px;height:6px;border-radius:50%;
+  background:var(--a1);box-shadow:0 0 9px var(--a1);animation:fvdrop 2.2s linear infinite;
+}
+@keyframes fvdrop{0%{top:0;opacity:0}12%{opacity:1}88%{opacity:1}100%{top:100%;opacity:0}}
+
+@media (min-aspect-ratio:1/1){
+  .flowv{flex-direction:row;align-items:stretch}
+  .flowv .fv-n{flex:1 1 0;min-width:0;justify-content:center}
+  .flowv .fv-w{width:clamp(12px,2.2vmin,26px);height:2px}
+  .flowv .fv-w::after{left:0;top:-2px;animation:fvslide 2.2s linear infinite}
+}
+@keyframes fvslide{0%{left:0;opacity:0}12%{opacity:1}88%{opacity:1}100%{left:100%;opacity:0}}

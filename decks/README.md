@@ -78,9 +78,9 @@ Removing a slide: delete the whole `<section>`. Same deal.
   in ascending order or the slide looks drunk.
 - `<div class="stat"><span class="num" data-count="38" data-suffix="%">` — counts up from
   zero when the slide opens.
-- `<svg class="flow">` — the architecture diagrams. The text inside is `data-en`/`data-ru`
-  like everything else; the boxes are drawn to a fixed `viewBox`, so if you add a node,
-  widen the `viewBox` and move the `<path>` wires with it.
+- `<div class="flowv">` — the architecture diagrams. One `.fv-n` per stage, separated by
+  `.fv-w` connectors. They stack vertically on a phone and run across a wide screen, so
+  adding a stage is one more `.fv-n` plus a connector — there are no coordinates to fix.
 - `<aside class="notes">` — speaker notes, hidden on screen, shown by `N`.
 
 ---

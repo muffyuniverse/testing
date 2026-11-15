@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>AI Support Assistant — client deck</title>
 <meta name="description" content="Contractor pitch deck: AI chat assistants for customer support.">
-<link rel="stylesheet" href="src/deck.css">
+<link rel="stylesheet" href="src/deck.css?v=3">
 </head>
 <body data-deck="chat">
 
@@ -150,59 +150,22 @@
     <div class="eyebrow reveal" style="--i:0" data-en="How it works" data-ru="Как это работает"></div>
     <h2><span class="kin" style="--i:1"><span data-en="One request, five controlled hops." data-ru="Один запрос — пять контролируемых шагов."></span></span></h2>
 
-    <svg class="flow" viewBox="0 0 1200 260" role="img" aria-label="Assistant architecture">
-      <defs>
-        <linearGradient id="wireGrad" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stop-color="#5eead4" stop-opacity=".25"/>
-          <stop offset=".5" stop-color="#5eead4" stop-opacity="1"/>
-          <stop offset="1" stop-color="#7c5cff" stop-opacity=".3"/>
-        </linearGradient>
-      </defs>
-
-      <path id="w1" class="wire hot" pathLength="1" d="M210 130 H 248" style="--i:0"/>
-      <path id="w2" class="wire hot" pathLength="1" d="M458 130 H 495" style="--i:1"/>
-      <path id="w3" class="wire hot" pathLength="1" d="M705 130 H 743" style="--i:2"/>
-      <path id="w4" class="wire hot" pathLength="1" d="M953 130 H 990" style="--i:3"/>
-
-      <g class="node" style="--i:0">
-        <rect class="box" x="0" y="70" width="210" height="120" rx="18"/>
-        <text class="t-md" x="105" y="118" data-en="Channels" data-ru="Каналы"></text>
-        <text class="t-sm" x="105" y="152" data-en="Telegram · WhatsApp" data-ru="Telegram · WhatsApp"></text>
-      </g>
-      <g class="node" style="--i:1">
-        <rect class="box" x="248" y="70" width="210" height="120" rx="18"/>
-        <text class="t-md" x="353" y="118" data-en="Gateway" data-ru="Шлюз"></text>
-        <text class="t-sm" x="353" y="152" data-en="auth · limits" data-ru="доступ · лимиты"></text>
-      </g>
-      <g class="node" style="--i:2">
-        <rect class="box cool" x="495" y="70" width="210" height="120" rx="18"/>
-        <text class="t-md" x="600" y="118" data-en="Orchestrator" data-ru="Оркестратор"></text>
-        <text class="t-sm" x="600" y="152" data-en="LLM + policy" data-ru="LLM + правила"></text>
-      </g>
-      <g class="node" style="--i:3">
-        <rect class="box" x="743" y="70" width="210" height="120" rx="18"/>
-        <text class="t-md" x="848" y="118" data-en="Retrieval" data-ru="Поиск"></text>
-        <text class="t-sm" x="848" y="152" data-en="vectors · tools" data-ru="векторы · функции"></text>
-      </g>
-      <g class="node" style="--i:4">
-        <rect class="box hot" x="990" y="70" width="210" height="120" rx="18"/>
-        <text class="t-md" x="1095" y="118" data-en="Your systems" data-ru="Ваши системы"></text>
-        <text class="t-sm" x="1095" y="152" data-en="CRM · 1C" data-ru="CRM · 1C"></text>
-      </g>
-
-      <circle class="packet" r="3.6" cx="0" cy="130">
-        <animateMotion dur="2.6s" begin="0s" repeatCount="indefinite" rotate="auto"><mpath href="#w1"/></animateMotion>
-      </circle>
-      <circle class="packet" r="3.6" cx="0" cy="130">
-        <animateMotion dur="2.6s" begin="0.65s" repeatCount="indefinite"><mpath href="#w2"/></animateMotion>
-      </circle>
-      <circle class="packet" r="3.6" cx="0" cy="130">
-        <animateMotion dur="2.6s" begin="1.3s" repeatCount="indefinite"><mpath href="#w3"/></animateMotion>
-      </circle>
-      <circle class="packet" r="3.6" cx="0" cy="130">
-        <animateMotion dur="2.6s" begin="1.95s" repeatCount="indefinite"><mpath href="#w4"/></animateMotion>
-      </circle>
-    </svg>
+    <div class="flowv" role="img" aria-label="Assistant architecture">
+      <div class="fv-n"><b data-en="Channels" data-ru="Каналы"></b>
+        <span data-en="Telegram · WhatsApp" data-ru="Telegram · WhatsApp"></span></div>
+      <div class="fv-w" aria-hidden="true"></div>
+      <div class="fv-n"><b data-en="Gateway" data-ru="Шлюз"></b>
+        <span data-en="auth · limits" data-ru="доступ · лимиты"></span></div>
+      <div class="fv-w" aria-hidden="true"></div>
+      <div class="fv-n cool"><b data-en="Orchestrator" data-ru="Оркестратор"></b>
+        <span data-en="LLM + policy" data-ru="LLM + правила"></span></div>
+      <div class="fv-w" aria-hidden="true"></div>
+      <div class="fv-n"><b data-en="Retrieval" data-ru="Поиск"></b>
+        <span data-en="vectors · tools" data-ru="векторы · функции"></span></div>
+      <div class="fv-w" aria-hidden="true"></div>
+      <div class="fv-n hot"><b data-en="Your systems" data-ru="Ваши системы"></b>
+        <span data-en="CRM · 1C" data-ru="CRM · 1C"></span></div>
+    </div>
 
     <p class="small reveal" style="--i:9"
        data-en="Your data never trains a third-party model. Every hop is logged with the request, the source used and the answer given — that log is the audit trail."
@@ -447,6 +410,6 @@
 <div class="notesbar"><div class="nt">Presenter notes</div><div class="nb"></div></div>
 <div class="overview"></div>
 
-<script src="src/deck.js"></script>
+<script src="src/deck.js?v=2"></script>
 </body>
 </html>
