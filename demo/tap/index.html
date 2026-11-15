@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tap targets</title>
+<style>
+  :root { color-scheme: dark; --bg:#0b0d10; --panel:#151a20; --line:#262d36;
+          --ink:#e7edf3; --dim:#8b98a5; --accent:#7ee0b8; --warn:#ffc46b; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width:520px; margin:0 auto; padding:28px 18px 40px; }
+  h1 { margin:0 0 4px; font-size:26px; letter-spacing:-.02em; }
+  h1 span { color:var(--accent); }
+  .sub { margin:0 0 20px; color:var(--dim); font-size:14px; }
+  .grid { display:grid; gap:12px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:14px;
+          padding:16px; cursor:pointer; transition:border-color .15s, transform .05s; }
+  .card:active { transform:translateY(1px); }
+  .card.selected { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
+  .card h2 { margin:0 0 6px; font-size:15px; }
+  .card p { margin:0; color:var(--dim); font-size:13px; }
+  .card.selected p { color:var(--accent); }
+  .status { margin-top:18px; padding:12px 14px; border:1px dashed var(--line);
+            border-radius:12px; font-size:13px; color:var(--dim); }
+  .status b { color:var(--warn); }
+  code { font-family:ui-monospace, Menlo, monospace; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Tap <span>targets</span></h1>
+  <p class="sub">Three containers. Tapping one marks it.</p>
+
+  <div class="grid">
+    <div class="card" id="card-a" data-name="alpha">
+      <h2>Alpha container</h2>
+      <p>First target — id card-a</p>
+    </div>
+    <div class="card" id="card-b" data-name="beta">
+      <h2>Beta container</h2>
+      <p>Second target — id card-b</p>
+    </div>
+    <div class="card" id="card-c" data-name="gamma">
+      <h2>Gamma container</h2>
+      <p>Third target — id card-c</p>
+    </div>
+  </div>
+
+  <div class="status" id="status">tapped: <b>none</b> · count: <b>0</b></div>
+</main>
+
+<script>
+  let count = 0;
+  document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      count += 1;
+      document.getElementById('status').innerHTML =
+        'tapped: <b>' + card.dataset.name + '</b> · count: <b>' + count + '</b>';
+      document.title = 'Tap targets — ' + card.dataset.name;
+    });
+  });
+</script>
+</body>
+</html>
