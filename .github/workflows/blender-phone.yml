@@ -1,0 +1,62 @@
+name: blender-phone
+
+# Builds a phone asset in Blender from the reference shots and renders it.
+# The runner has no GPU, so this is Cycles on CPU with denoising.
+# scripts/blender/phone.py is the whole asset: geometry, materials, studio, cameras.
+
+on:
+  workflow_dispatch:
+    inputs:
+      samples:
+        description: Cycles samples per render
+        default: "48"
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Blender
+        run: |
+          set -euo pipefail
+          if command -v blender >/dev/null 2>&1; then
+            blender --version | head -1; exit 0
+          fi
+          sudo apt-get update -qq
+          if sudo apt-get install -y -qq blender >/dev/null 2>&1 && command -v blender >/dev/null 2>&1; then
+            echo "installed from apt"; blender --version | head -1; exit 0
+          fi
+          echo "apt had nothing usable; taking the official tarball"
+          V=4.2.1
+          curl -fsSL -o /tmp/blender.tar.xz \
+            "https://download.blender.org/release/Blender4.2/blender-${V}-linux-x64.tar.xz"
+          sudo tar -xJf /tmp/blender.tar.xz -C /opt
+          sudo ln -sf "/opt/blender-${V}-linux-x64/blender" /usr/local/bin/blender
+          blender --version | head -1
+
+      - name: Render the asset
+        run: |
+          set -euo pipefail
+          mkdir -p renders
+          blender -b --factory-startup -noaudio \
+            -P scripts/blender/phone.py -- renders "${{ inputs.samples }}"
+          echo "--- what came out ---"
+          ls -lh renders
+
+      - name: What the renderer said
+        if: always()
+        run: cat renders/report.json || echo "no report.json — the script died before it wrote one"
+
+      - name: Hand back the asset
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: poco-x8-pro-render
+          path: renders
+          if-no-files-found: warn
