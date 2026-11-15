@@ -9,7 +9,7 @@ on:
     inputs:
       samples:
         description: Cycles samples per render
-        default: "48"
+        default: "64"
         required: false
 
 permissions:
@@ -29,7 +29,8 @@ jobs:
             blender --version | head -1; exit 0
           fi
           sudo apt-get update -qq
-          if sudo apt-get install -y -qq blender >/dev/null 2>&1 && command -v blender >/dev/null 2>&1; then
+          # python3-numpy: the apt build's Python has no numpy, and the glTF exporter needs it.
+          if sudo apt-get install -y -qq blender python3-numpy >/dev/null 2>&1 && command -v blender >/dev/null 2>&1; then
             echo "installed from apt"; blender --version | head -1; exit 0
           fi
           echo "apt had nothing usable; taking the official tarball"
