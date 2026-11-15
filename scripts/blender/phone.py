@@ -29,12 +29,15 @@ CORNER = 8.5 * MM      # plan-view corner radius
 
 OUT = "renders"
 SAMPLES = 64
+ANIM = False
 if "--" in sys.argv:
     extra = sys.argv[sys.argv.index("--") + 1:]
     if extra:
         OUT = extra[0]
     if len(extra) > 1:
         SAMPLES = int(extra[1])
+    if len(extra) > 2 and extra[2].lower() == "anim":
+        ANIM = True
 
 os.makedirs(OUT, exist_ok=True)
 report = {"out": OUT, "samples": SAMPLES, "renders": [], "steps": []}
@@ -439,6 +442,25 @@ def aim(cam, loc, target, lens):
     cam.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
 
 
+def turntable(cam, frames=24, res=(720, 900), samples=24):
+    """A full spin: the fastest way to show the whole asset in one file."""
+    scene = bpy.context.scene
+    scene.cycles.samples = samples
+    scene.render.resolution_x, scene.render.resolution_y = res
+    scene.frame_start, scene.frame_end = 1, frames
+    for f in range(1, frames + 1):
+        a = 2.0 * math.pi * (f - 1) / frames
+        aim(cam, (0.44 * math.sin(a), -0.44 * math.cos(a), 0.075), (0, 0, 0.0), 85)
+        cam.keyframe_insert("location", frame=f)
+        cam.keyframe_insert("rotation_euler", frame=f)
+    scene.render.image_settings.file_format = "FFMPEG"
+    scene.render.ffmpeg.format = "MPEG4"
+    scene.render.ffmpeg.codec = "H264"
+    scene.render.ffmpeg.constant_rate_factor = "HIGH"
+    scene.render.filepath = os.path.join(OUT, "turntable.mp4")
+    bpy.ops.render.render(animation=True)
+
+
 def shoot(cam, name, loc, target, lens, res):
     scene = bpy.context.scene
     aim(cam, loc, target, lens)
@@ -472,6 +494,13 @@ def main():
     shoot(cam, "04-camera-detail", (-0.085, 0.160, 0.115),
           (-0.0165, T / 2, 0.044), 100, (1000, 1000))
     shoot(cam, "05-edge", (0.200, -0.160, 0.030), (0, 0, 0.0), 120, (1000, 1000))
+
+    if ANIM:
+        try:
+            turntable(cam)
+            report["turntable"] = "turntable.mp4"
+        except Exception:
+            report["turntable_error"] = traceback.format_exc()
 
     blend = os.path.join(OUT, "poco-x8-pro.blend")
     bpy.ops.wm.save_as_mainfile(filepath=blend)

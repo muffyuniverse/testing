@@ -36,8 +36,26 @@ catches its own exception and writes `report.json` into the artifact makes the r
 diagnosable from the artifact alone, with no log fetch at all. `scripts/blender/phone.py`
 does this: geometry steps, render list, sizes, traceback.
 
-## 4. What cannot be done
+## 4. Waiting: put the whole wait in the background
 
-There is no sleep command here, so a poll loop is a series of turns. `browse` with a
-JavaScript `eval` that polls times out after ~8 s, so it cannot block on a long job either.
-Keep the polls small and do something useful between them.
+There is no sleep command, and a foreground `pipe` is cut off at 60 s. The workable
+recipe is a `background` pipe that delays itself and then fetches the answer:
+
+    background tool: pipe name: wait-run.txt
+      steps:
+        s1  http GET .../runs?per_page=1  (direct: true)      # find the newest run id
+        38 x http GET https://httpbin.org/delay/10           # ~380 s of waiting
+        s40 http GET .../runs/{{id}}/artifacts  (direct: true, vars id = s1 json
+                 workflow_runs.0.id)
+
+Intermediate steps stay out of the conversation, and the job wakes the agent when it
+finishes. `httpbin.org/delay/N` accepts N up to 10 (httpbingo.org is the same service and
+rejects anything longer with a 400).
+
+## 5. Mind the hourly API budget
+
+The REST API here is 60 requests per hour, and an artifact download counts heavily. A
+single run cycle — dispatch, find the id, poll, download — can use most of it. When it runs
+out, `GET https://api.github.com/rate_limit` is free and says when it resets; `git push`
+and `git pull` do not touch the API at all. Batch the API calls, and never poll the full
+run object.

@@ -46,7 +46,7 @@ jobs:
           set -euo pipefail
           mkdir -p renders
           blender -b --factory-startup -noaudio \
-            -P scripts/blender/phone.py -- renders "${{ inputs.samples }}"
+            -P scripts/blender/phone.py -- renders "${{ inputs.samples }}" anim
           echo "--- what came out ---"
           ls -lh renders
 
