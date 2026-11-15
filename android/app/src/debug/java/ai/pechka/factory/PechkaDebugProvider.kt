@@ -487,7 +487,13 @@ class PechkaDebugProvider : ContentProvider() {
                     }
                 }
 
-                for ((bmp, _) in frames) {
+                var lastPtsUs = 0L
+                for ((bmp, ptsUs) in frames) {
+                    // The encoder stamps surface input with its own clock, so a 3 s capture fed
+                    // back-to-back muxes as ~0.5 s. Feed frames at the pace they were captured.
+                    val waitMs = (ptsUs - lastPtsUs) / 1_000L
+                    if (waitMs in 1L..2_000L) runCatching { Thread.sleep(waitMs) }
+                    lastPtsUs = ptsUs
                     val c = surf.lockCanvas(null)
                     try {
                         c.drawColor(Color.BLACK)
