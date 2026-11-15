@@ -107,7 +107,8 @@ function paint(view) {
             const link = run.url
               ? `<a href="${esc(run.url)}" rel="noreferrer">${esc(shortSha(run.sha))}</a>`
               : esc(shortSha(run.sha));
-            return [`${esc(run.name)} <span class="${cls}">${esc(s)}</span>`, `${link} · ${esc(when(run.created_at))}`];
+            // The key side is escaped by card(); markup has to live in the value side.
+            return [run.name, `<span class="${cls}">${esc(s)}</span> · ${link} · ${esc(when(run.created_at))}`];
           })
         : [["runs", "none yet"]]
     ),
