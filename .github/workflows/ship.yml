@@ -197,6 +197,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          echo "TAG=$TAG repo=$GITHUB_REPOSITORY cwd=$PWD"
+          find android/app/build/outputs -maxdepth 6 -name '*.apk' -print || true
           cp android/app/build/outputs/apk/debug/app-debug.apk "factory-${TAG}-debug.apk"
-          gh release upload "$TAG" "factory-${TAG}-debug.apk" --clobber
-          gh release view "$TAG" --json assets -q '.assets[].name'
+          ls -l "factory-${TAG}-debug.apk"
+          gh release upload "$TAG" "factory-${TAG}-debug.apk" --clobber -R "$GITHUB_REPOSITORY"
+          gh release view "$TAG" -R "$GITHUB_REPOSITORY" --json assets -q '.assets[].name'
