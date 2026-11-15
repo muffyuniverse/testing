@@ -9,7 +9,7 @@ prospect through. No build step, no PowerPoint, no font downloads.
 | `chatbot.html` | AI assistant for a support team | 11 |
 | `ozon.html` | Ozon integration + operations dashboard | 12 |
 
-Both share `assets/deck.css` and `assets/deck.js`.
+Both share `src/deck.css` and `src/deck.js`.
 
 ---
 
