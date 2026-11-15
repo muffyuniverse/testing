@@ -65,3 +65,46 @@ tree — for an image shown inside a Markdown file, the same URL works in `![](�
 - Git LFS is the other option, but it puts files back in the tree and burns a
   separate storage/bandwidth quota (free tier 1 GB each). Release assets do not.
 - Deleting a release deletes its assets. Keep the tag if you want the URL.
+
+## 4. Round-trip test: runner fetches the assets and uses them as app assets
+
+`assets-v2` is the current media release (three files, ~570 kB). The workflow
+`.github/workflows/assets-roundtrip.yml` proves the inbound half of the rule: a runner
+downloads a release's assets and puts them where the app serves them from.
+
+    POST https://api.github.com/repos/muffyuniverse/testing/actions/workflows/assets-roundtrip.yml/dispatches
+    Authorization: Bearer {{secret:github-muffyuniverse}}
+    Content-Type: application/json
+
+    {"ref":"main","inputs":{"tag":"assets-v2","dest":"android/app/src/main/assets/www/media"}}
+
+What it does, in about ten seconds:
+
+1. `gh release download <tag>` — every asset, no pattern.
+2. Rejects anything that is not a binary (an HTML error page fails the job).
+3. Copies them to `dest`, writes `media/index.json` (`name`, `path`, `bytes`, `mime`,
+   `sha256` per file) so the WebView can list them without hitting the network.
+4. Asserts each `media/<name>` is URL-safe, the bytes on disk match the manifest, and
+   the hashes still match.
+5. Uploads the whole `media/` folder as the artifact `app-assets-media`.
+
+To check a run without trusting the green tick, pull the artifact and compare its
+`index.json` hashes with the release's own digests:
+
+    GET https://api.github.com/repos/muffyuniverse/testing/releases/tags/assets-v2   -> assets[].digest
+    GET https://api.github.com/repos/muffyuniverse/testing/actions/artifacts/<id>/zip
+
+A pass means the bytes that reached the app are the bytes that were published.
+
+### Making a new media release (what `assets-v2` was)
+
+1. Download the old assets by id, so the bytes are known:
+
+       GET https://api.github.com/repos/muffyuniverse/testing/releases/assets/<asset_id>
+       Accept: application/octet-stream
+
+2. `POST /releases` with `{"tag_name":"assets-v3","target_commitish":"main",...}` — GitHub
+   creates the tag at that commit. Note the `id` it returns.
+3. Upload each file with `body_file` to
+   `https://uploads.github.com/repos/muffyuniverse/testing/releases/<id>/assets?name=<name>`.
+4. Dispatch the round-trip workflow against the new tag.
