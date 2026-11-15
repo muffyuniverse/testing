@@ -128,6 +128,23 @@ The flag is described as "captures beyond the screen"; it returned less than the
 An agent showing "the whole page" would show a truncated one, and the truncation is invisible
 without comparing dimensions.
 
+## 15. `http` filed results collide and overwrite — open, new
+
+Two requests to the same endpoint without `name` are filed to the same path:
+
+1. `GET https://lite.duckduckgo.com/lite/?q=android+webview+debug+bridge` → "It is at
+   agent/http/lite.duckduckgo.com-bb9404" (23.7 kB, 10 `result-link` anchors).
+2. `GET https://lite.duckduckgo.com/lite/?q=second+query+rate+limit+test` → the same path.
+
+Reading the file afterwards finds only the second query: a grep for the first query's text
+returns nothing. No warning, no new filename. The `-bb9404` suffix is a constant, so any repeat
+request to the same host/path shape collides (`rate_limit-bb9404`, `repositories-bb9404`,
+`api-bb9404.php` all follow the scheme).
+
+The answer says "filed, not quoted", so the file is the only copy — losing it loses the result.
+**Workaround:** pass `name` (`http {"name":"ddg-alpha.html"}`); two named calls produced two
+distinct files, both preserved.
+
 ---
 
 ## Confirmed healthy in this round (not bugs)
