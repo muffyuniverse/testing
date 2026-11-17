@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ozon Integration — client deck</title>
+<meta name="description" content="Contractor pitch deck: Ozon marketplace integration for sellers.">
+<link rel="stylesheet" href="src/deck.css?v=3">
+</head>
+<body data-deck="ozon">
+
+<div class="aurora"><i></i><i></i><i></i></div>
+<div class="grain"></div>
+<div class="vignette"></div>
+
+<header class="hud">
+  <div class="brand"><span class="dot"></span>OZON&nbsp;INTEGRATION <em>/ contractor deck</em></div>
+  <div class="lang" role="group" aria-label="Language">
+    <button type="button" data-lang="en" aria-pressed="true">EN</button>
+    <button type="button" data-lang="ru" aria-pressed="false">RU</button>
+  </div>
+</header>
+
+<main class="stage">
+
+  <!-- ============ 01 COVER ============ -->
+  <section class="slide" data-title-en="Cover" data-title-ru="Титул">
+    <div class="eyebrow reveal" style="--i:0" data-en="Marketplace integration · Ozon" data-ru="Интеграция маркетплейсов · Ozon"></div>
+    <h1>
+      <span class="kin" style="--i:1"><span data-en="Ozon runs on data." data-ru="Ozon работает на данных."></span></span>
+      <span class="kin" style="--i:2"><span class="grad" data-en="Most sellers run on spreadsheets." data-ru="Большинство селлеров — на таблицах."></span></span>
+    </h1>
+    <p class="reveal" style="--i:4;max-width:54ch"
+       data-en="I connect your stock, prices, orders and postings to the Ozon Seller API — so nothing is typed twice, nothing oversells, and every shipment leaves on time."
+       data-ru="Я подключаю ваши остатки, цены, заказы и отправления к Ozon Seller API — чтобы ничего не вводить дважды, не продавать лишнего и отгружать в срок."></p>
+    <div class="row reveal" style="--i:6;margin-top:.4em">
+      <span class="chip">FBO · FBS · realFBS</span>
+      <span class="chip" data-en="1C · ERP · WMS" data-ru="1C · ERP · WMS"></span>
+      <span class="chip" data-en="Live in 6–8 weeks" data-ru="Запуск за 6–8 недель"></span>
+    </div>
+    <p class="small reveal" style="--i:8;margin-top:.9em"
+       data-en="‹Your name› — integration contractor · hello@example.com · Telegram @yourhandle"
+       data-ru="‹Ваше имя› — подрядчик по интеграциям · hello@example.com · Telegram @yourhandle"></p>
+    <aside class="notes"
+      data-en="Open with the spreadsheet line. Every Ozon seller in the room has a person whose whole job is copying numbers between two windows."
+      data-ru="Начните с фразы про таблицы. У каждого селлера в зале есть человек, чья работа — переносить цифры между двумя окнами."></aside>
+  </section>
+
+  <!-- ============ 02 PAIN ============ -->
+  <section class="slide" data-title-en="Where money leaks" data-title-ru="Где утекают деньги">
+    <div class="eyebrow reveal" style="--i:0" data-en="The real cost" data-ru="Реальная стоимость"></div>
+    <h2>
+      <span class="kin" style="--i:1"><span data-en="Four leaks, all of them silent." data-ru="Четыре утечки, все незаметные."></span></span>
+    </h2>
+    <div class="grid g4" style="margin-top:.5em">
+      <div class="card reveal" style="--i:3">
+        <div class="tag" data-en="Leak 01" data-ru="Утечка 01"></div>
+        <h3 data-en="Stock that isn't there" data-ru="Остатков нет на самом деле"></h3>
+        <p data-en="Warehouse sells the last unit while Ozon sells it too. The cancellation lands on your defect rate, and the defect rate costs you placement."
+           data-ru="Склад продаёт последнюю единицу, и Ozon продаёт её же. Отмена идёт в процент брака, а брак стоит вам позиций в выдаче."></p>
+      </div>
+      <div class="card reveal" style="--i:4">
+        <div class="tag" data-en="Leak 02" data-ru="Утечка 02"></div>
+        <h3 data-en="Prices that drift" data-ru="Цены уплывают"></h3>
+        <p data-en="A promo changes in one system and not the other. Either you sell at a loss, or you lose the buy-box to a competitor for a week."
+           data-ru="Акция меняется в одной системе, но не в другой. Либо продаёте в минус, либо на неделю теряете выкуп у конкурента."></p>
+      </div>
+      <div class="card reveal" style="--i:5">
+        <div class="tag" data-en="Leak 03" data-ru="Утечка 03"></div>
+        <h3 data-en="Postings assembled by hand" data-ru="Отправления собирают руками"></h3>
+        <p data-en="Every FBS order is a copy-paste job. It works at 20 orders a day and collapses at 200 — usually on a Friday."
+           data-ru="Каждый заказ FBS — это копипаст. Работает при 20 заказах в день и ломается при 200. Обычно в пятницу."></p>
+      </div>
+      <div class="card reveal" style="--i:6">
+        <div class="tag" data-en="Leak 04" data-ru="Утечка 04"></div>
+        <h3 data-en="Nobody sees the whole picture" data-ru="Никто не видит картину целиком"></h3>
+        <p data-en="Revenue, stock cover and defect rate live in three exports nobody joins. Decisions get made on last month's PDF."
+           data-ru="Выручка, запас и брак — в трёх выгрузках, которые никто не сводит. Решения принимаются по PDF за прошлый месяц."></p>
+      </div>
+    </div>
+    <aside class="notes"
+      data-en="Ask which of the four they recognise. Whichever they name is the first module you build — that's how you scope without guessing."
+      data-ru="Спросите, какую из четырёх они узнают. С неё и начнёте — так вы определяете объём без догадок."></aside>
+  </section>
+
+  <!-- ============ 03 DEFECT COST ============ -->
+  <section class="slide" data-title-en="What a defect costs" data-title-ru="Сколько стоит брак">
+    <div class="eyebrow reveal" style="--i:0" data-en="The mechanics" data-ru="Механика"></div>
+    <h2><span class="kin" style="--i:1"><span data-en="One cancelled order is not one lost order." data-ru="Одна отмена — это не одна потерянная продажа."></span></span></h2>
+    <div class="compare">
+      <div class="card reveal" style="--i:3">
+        <div class="tag" data-en="What you think it costs" data-ru="Что вы думаете"></div>
+        <h3 data-en="The margin on one unit." data-ru="Маржа на одной единице."></h3>
+        <p data-en="A refund, a courier fee, done. Small, forgettable, absorbed."
+           data-ru="Возврат, доставка, готово. Мелочь, которую списали."></p>
+      </div>
+      <div class="arrow reveal" style="--i:4">→</div>
+      <div class="card reveal" style="--i:5;border-color:rgba(255,45,120,.4)">
+        <div class="tag" data-en="What it actually costs" data-ru="Что на самом деле"></div>
+        <h3 data-en="A defect rate that compounds." data-ru="Процент брака, который накапливается."></h3>
+        <ul class="ticks">
+          <li data-en="Cancellations push the defect rate up." data-ru="Отмены поднимают процент брака."></li>
+          <li data-en="A high defect rate restricts placement and promo access." data-ru="Высокий брак ограничивает выдачу и участие в акциях."></li>
+          <li data-en="Less traffic means fewer reviews, which means less traffic." data-ru="Меньше трафика — меньше отзывов — ещё меньше трафика."></li>
+          <li data-en="The loss shows up weeks later, in a different report." data-ru="Убыток виден через недели и в другом отчёте."></li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout reveal" style="--i:7;margin-top:.5em"
+       data-en="Every oversell you prevent is worth more than the order it saved. That is the whole argument for real-time stock sync."
+       data-ru="Каждая предотвращённая продажа «в минус» стоит дороже спасённого заказа. В этом весь смысл синхронизации остатков в реальном времени."></div>
+    <aside class="notes"
+      data-en="Be careful not to quote exact Ozon penalty figures you can't verify. Say 'restricts placement' — true, defensible, and enough to make the point."
+      data-ru="Не называйте точные цифры штрафов Ozon, которые не можете подтвердить. Скажите «ограничивает выдачу» — это верно, защитимо и достаточно."></aside>
+  </section>
+
+  <!-- ============ 04 WHAT I BUILD ============ -->
+  <section class="slide" data-title-en="What I build" data-title-ru="Что я делаю">
+    <div class="eyebrow reveal" style="--i:0" data-en="Scope" data-ru="Объём работ"></div>
+    <h2><span class="kin" style="--i:1"><span data-en="One sync engine, six directions." data-ru="Один движок синхронизации, шесть направлений."></span></span></h2>
+    <div class="grid g3" style="margin-top:.4em">
+      <div class="card reveal" style="--i:3"><div class="tag" data-en="Products" data-ru="Товары"></div>
+        <h4 data-en="Cards that stay correct" data-ru="Карточки всегда корректны"></h4>
+        <p data-en="Create, update and archive from your catalogue. Attributes validated before they reach Ozon, so rejections stop."
+           data-ru="Создание, обновление и архивация из вашего каталога. Атрибуты проверяются до отправки — отказов больше нет."></p></div>
+      <div class="card reveal" style="--i:4"><div class="tag" data-en="Prices" data-ru="Цены"></div>
+        <h4 data-en="One source of truth" data-ru="Единый источник правды"></h4>
+        <p data-en="Price changes go out once, with a guard against a typo becoming a 10× discount. Promo windows handled explicitly."
+           data-ru="Изменение цены уходит один раз, с защитой от опечатки, которая превращается в скидку ×10. Акционные окна — явно."></p></div>
+      <div class="card reveal" style="--i:5"><div class="tag" data-en="Stock" data-ru="Остатки"></div>
+        <h4 data-en="Oversell becomes impossible" data-ru="Продажа «в минус» невозможна"></h4>
+        <p data-en="Reserved stock from your warehouse, pushed to Ozon on change. Buffer per warehouse, per cluster, per lead time."
+           data-ru="Резерв со склада уходит в Ozon при изменении. Буфер по складу, кластеру и сроку доставки."></p></div>
+      <div class="card reveal" style="--i:6"><div class="tag" data-en="Orders" data-ru="Заказы"></div>
+        <h4 data-en="Postings assembled automatically" data-ru="Отправления собираются сами"></h4>
+        <p data-en="New FBS order arrives, stock reserves, label prints, status flows back. No spreadsheet in the loop."
+           data-ru="Пришёл заказ FBS, зарезервировался остаток, напечаталась этикетка, статус вернулся. Таблиц в цепочке нет."></p></div>
+      <div class="card reveal" style="--i:7"><div class="tag" data-en="Returns" data-ru="Возвраты"></div>
+        <h4 data-en="Returns tracked, not discovered" data-ru="Возвраты под контролем"></h4>
+        <p data-en="Every return lands in your system with reason codes, so the defect rate is explained rather than feared."
+           data-ru="Каждый возврат приходит в вашу систему с причиной — брак объяснён, а не пугает."></p></div>
+      <div class="card reveal" style="--i:8"><div class="tag" data-en="Analytics" data-ru="Аналитика"></div>
+        <h4 data-en="One dashboard, real numbers" data-ru="Один дашборд, реальные цифры"></h4>
+        <p data-en="Revenue, stock cover, defect rate and price index in one place, refreshed hourly."
+           data-ru="Выручка, запас, брак и ценовой индекс в одном месте, обновление каждый час."></p></div>
+    </div>
+    <aside class="notes"
+      data-en="Don't build all six. Start with the two the client named on the previous slide. Scope creep is how integrations die."
+      data-ru="Не делайте все шесть сразу. Начните с двух, которые клиент назвал на прошлом слайде. Расползание объёма убивает интеграции."></aside>
+  </section>
+
+  <!-- ============ 05 ARCHITECTURE ============ -->
+  <section class="slide" data-title-en="Architecture" data-title-ru="Архитектура">
+    <div class="eyebrow reveal" style="--i:0" data-en="How it works" data-ru="Как это работает"></div>
+    <h2><span class="kin" style="--i:1"><span data-en="Your systems on the left. Ozon on the right." data-ru="Ваши системы слева. Ozon справа."></span></span></h2>
+
+    <div class="flowv" role="img" aria-label="Integration architecture">
+      <div class="fv-n"><b data-en="Your systems" data-ru="Ваши системы"></b>
+        <span data-en="1C · ERP · WMS" data-ru="1C · ERP · WMS · склад"></span>
+        <span data-en="the source of truth" data-ru="источник правды"></span></div>
+      <div class="fv-w" aria-hidden="true"></div>
+      <div class="fv-n cool"><b data-en="Integration hub" data-ru="Интеграционный слой"></b>
+        <span data-en="queue · retry · cache" data-ru="очередь · ретраи · кеш"></span>
+        <span data-en="rate-limit aware" data-ru="учитывает лимиты"></span></div>
+      <div class="fv-w" aria-hidden="true"></div>
+      <div class="fv-n hot"><b data-en="Ozon Seller API" data-ru="Ozon Seller API"></b>
+        <span data-en="products · prices" data-ru="товары · цены"></span>
+        <span data-en="postings · returns" data-ru="отправления · возвраты"></span></div>
+    </div>
+    <p class="small" style="margin-top:.6em"
+       data-en="status updates flow back the same way"
+       data-ru="статусы возвращаются тем же путём"></p>
+
+    <div class="grid g3" style="margin-top:.6em">
+      <div class="reveal" style="--i:9"><div class="tag" data-en="Auth" data-ru="Доступ"></div>
+        <p class="small mono" data-en="Client-Id + Api-Key, rotated, never in the repo." data-ru="Client-Id + Api-Key, ротация, никогда в репозитории."></p></div>
+      <div class="reveal" style="--i:10"><div class="tag" data-en="Direction" data-ru="Направление"></div>
+        <p class="small" data-en="Ozon is never the master record. Your catalogue stays authoritative." data-ru="Ozon не главный источник. Ваш каталог остаётся главным."></p></div>
+      <div class="reveal" style="--i:11"><div class="tag" data-en="Failure" data-ru="Сбои"></div>
+        <p class="small" data-en="If Ozon is down, the queue holds. Nothing is lost, nothing is double-sent." data-ru="Если Ozon недоступен, очередь держит. Ничего не теряется и не дублируется."></p></div>
+    </div>
+    <aside class="notes"
+      data-en="The one technical sentence that matters: Ozon is never the master. It removes the fear of an integration rewriting their catalogue."
+      data-ru="Главная техническая фраза: Ozon не главный источник. Это снимает страх, что интеграция перепишет каталог."></aside>
+  </section>
+
+  <!-- ============ 06 FBS FLOW ============ -->
+  <section class="slide" data-title-en="FBS flow" data-title-ru="Поток FBS">
+    <div class="eyebrow reveal" style="--i:0" data-en="Order to track" data-ru="От заказа до трека"></div>
+    <h2><span class="kin" style="--i:1"><span data-en="Six steps, none of them manual." data-ru="Шесть шагов, ни одного вручную."></span></span></h2>
+    <ol class="steps" style="margin-top:.7em">
+      <li class="reveal" style="--i:3"><i>01</i>
+        <b data-en="Order in" data-ru="Заказ"></b>
+        <span data-en="New posting appears within seconds of the sale." data-ru="Новое отправление появляется через секунды после продажи."></span></li>
+      <li class="reveal" style="--i:4"><i>02</i>
+        <b data-en="Reserve" data-ru="Резерв"></b>
+        <span data-en="Stock is held in your warehouse, not just in Ozon's count." data-ru="Остаток зарезервирован на складе, а не только в счёте Ozon."></span></li>
+      <li class="reveal" style="--i:5"><i>03</i>
+        <b data-en="Pick" data-ru="Сборка"></b>
+        <span data-en="Picking list printed for the right zone." data-ru="Лист сборки печатается для нужной зоны."></span></li>
+      <li class="reveal" style="--i:6"><i>04</i>
+        <b data-en="Label" data-ru="Этикетка"></b>
+        <span data-en="Label generated from Ozon, checked for the right posting." data-ru="Этикетка из Ozon, сверенная с нужным отправлением."></span></li>
+      <li class="reveal" style="--i:7"><i>05</i>
+        <b data-en="Ship" data-ru="Отгрузка"></b>
+        <span data-en="Status and tracking pushed back automatically." data-ru="Статус и трек уходят обратно автоматически."></span></li>
+      <li class="reveal" style="--i:8"><i>06</i>
+        <b data-en="Track" data-ru="Контроль"></b>
+        <span data-en="Anything not shipped on time raises an alert before Ozon notices." data-ru="Что не отгружено вовремя — алерт до того, как заметит Ozon."></span></li>
+    </ol>
+    <div class="callout reveal" style="--i:10;margin-top:.6em"
+       data-en="The value is not the automation. It is that step 06 warns you before the defect rate moves."
+       data-ru="Ценность не в автоматизации. Ценность в шаге 06: предупреждение до того, как сдвинется процент брака."></div>
+    <aside class="notes"
+      data-en="Walk one real order through these six boxes on paper. It takes two minutes and makes the whole project concrete."
+      data-ru="Проведите один реальный заказ через эти шесть шагов на бумаге. Две минуты — и проект становится конкретным."></aside>
+  </section>
+
+  <!-- ============ 07 DASHBOARD ============ -->
+  <section class="slide" data-title-en="Dashboard" data-title-ru="Дашборд">
+    <div class="split">
+      <div>
+        <div class="eyebrow reveal" style="--i:0" data-en="Visibility" data-ru="Прозрачность"></div>
+        <h2><span class="kin" style="--i:1"><span data-en="The numbers you check" data-ru="Цифры, которые вы смотрите"></span></span>
+            <span class="kin" style="--i:2"><span class="grad" data-en="in one place, hourly." data-ru="в одном месте, каждый час."></span></span></h2>
+        <ul class="ticks reveal" style="--i:5;margin-top:.6em">
+          <li data-en="Revenue and orders, hour by hour." data-ru="Выручка и заказы, по часам."></li>
+          <li data-en="Stock cover in days, per SKU and cluster." data-ru="Запас в днях, по SKU и кластеру."></li>
+          <li data-en="Defect rate trend, before it becomes a warning." data-ru="Тренд брака — до того, как он станет предупреждением."></li>
+          <li data-en="Price index against the cheapest competitor." data-ru="Ценовой индекс против самого дешёвого конкурента."></li>
+        </ul>
+      </div>
+
+      <div class="dash">
+        <div class="dash-hd">
+          <span class="live" style="width:7px;height:7px;border-radius:50%;background:var(--a1);box-shadow:0 0 10px var(--a1)"></span>
+          <b data-en="OZON · live" data-ru="OZON · онлайн"></b>
+          <span class="dots"><i></i><i></i><i></i></span>
+        </div>
+        <div class="dash-bd">
+          <div class="tile"><div class="k" data-en="Revenue today" data-ru="Выручка сегодня"></div>
+            <div class="v"><b data-count="412800">0</b> ₽</div></div>
+          <div class="tile"><div class="k" data-en="Orders" data-ru="Заказы"></div>
+            <div class="v"><b data-count="187">0</b></div></div>
+          <div class="tile"><div class="k" data-en="Stockouts" data-ru="Нулевой остаток"></div>
+            <div class="v dn"><b data-count="2">0</b></div></div>
+          <div class="tile"><div class="k" data-en="Defect rate" data-ru="Процент брака"></div>
+            <div class="v up"><b data-count="0.4" data-dec="1">0</b>%</div></div>
+          <div class="tile wide"><div class="k" data-en="Orders · last 12 hours" data-ru="Заказы · последние 12 часов"></div>
+            <div class="spark">
+              <i style="--h:22%;--i:0"></i><i style="--h:38%;--i:1"></i><i style="--h:30%;--i:2"></i>
+              <i style="--h:52%;--i:3"></i><i style="--h:44%;--i:4"></i><i style="--h:66%;--i:5"></i>
+              <i style="--h:58%;--i:6"></i><i style="--h:78%;--i:7"></i><i style="--h:70%;--i:8"></i>
+              <i style="--h:88%;--i:9"></i><i style="--h:82%;--i:10"></i><i style="--h:100%;--i:11"></i>
+            </div></div>
+          <div class="tile wide"><div class="k" data-en="Sync health" data-ru="Здоровье синхронизации"></div>
+            <div class="v up" style="font-size:clamp(12px,1.6vmin,18px)" data-en="All queues clear · 0 errors" data-ru="Очереди пусты · 0 ошибок"></div>
+            <div class="spark" style="height:clamp(14px,2.4vh,26px)">
+              <i style="--h:60%;--i:0"></i><i style="--h:75%;--i:1"></i><i style="--h:55%;--i:2"></i>
+              <i style="--h:85%;--i:3"></i><i style="--h:70%;--i:4"></i><i style="--h:92%;--i:5"></i>
+            </div></div>
+        </div>
+      </div>
+    </div>
+    <aside class="notes"
+      data-en="This is a mock, and say so. Offer to wire it to their real account in the audit — a live dashboard in the first meeting is the strongest possible demo."
+      data-ru="Это макет — так и скажите. Предложите подключить к реальному аккаунту на аудите: живой дашборд на первой встрече — сильнейшее демо."></aside>
+  </section>
+
+  <!-- ============ 08 GUARDRAILS ============ -->
+  <section class="slide" data-title-en="Guardrails" data-title-ru="Контроли">
+    <div class="eyebrow reveal" style="--i:0" data-en="Why this doesn't break" data-ru="Почему это не ломается"></div>
+    <h2><span class="kin" style="--i:1"><span data-en="Built for the day Ozon says no." data-ru="Рассчитано на день, когда Ozon ответит «нет»."></span></span></h2>
+    <div class="grid g3" style="margin-top:.4em">
+      <div class="card reveal" style="--i:3"><h4 data-en="Rate limits respected" data-ru="Лимиты соблюдаются"></h4>
+        <p data-en="Per-endpoint limits enforced client-side, with backoff. A burst never turns into a block."
+           data-ru="Лимиты по каждому методу соблюдаются на нашей стороне, с backoff. Всплеск не превращается в блокировку."></p></div>
+      <div class="card reveal" style="--i:4"><h4 data-en="Idempotent writes" data-ru="Идемпотентные записи"></h4>
+        <p data-en="Every write carries a key. A retry updates the same posting instead of creating a second one."
+           data-ru="У каждой записи есть ключ. Повтор обновляет то же отправление, а не создаёт второе."></p></div>
+      <div class="card reveal" style="--i:5"><h4 data-en="Queue, not hope" data-ru="Очередь, а не надежда"></h4>
+        <p data-en="Messages persist until confirmed. An outage of an hour costs an hour, not a day of reconciliation."
+           data-ru="Сообщения хранятся до подтверждения. Час простоя стоит час, а не день сверки."></p></div>
+      <div class="card reveal" style="--i:6"><h4 data-en="Sandbox first" data-ru="Сначала песочница"></h4>
+        <p data-en="Every flow rehearsed against a test catalogue before it touches a live listing."
+           data-ru="Каждый сценарий отрепетирован на тестовом каталоге до касания живых карточек."></p></div>
+      <div class="card reveal" style="--i:7"><h4 data-en="Alerts that reach a person" data-ru="Алерты доходят до человека"></h4>
+        <p data-en="Telegram or email on stuck queues, auth failures and defect-rate movement — not a log nobody reads."
+           data-ru="Telegram или почта при зависшей очереди, сбое доступа и росте брака — а не лог, который никто не читает."></p></div>
+      <div class="card reveal" style="--i:8"><h4 data-en="Audit trail" data-ru="Аудит"></h4>
+        <p data-en="Every API call, every change, every failure, replayable for a year."
+           data-ru="Каждый вызов API, каждое изменение, каждый сбой — воспроизводимо за год."></p></div>
+    </div>
+    <aside class="notes"
+      data-en="This slide is for the IT person in the room. If there isn't one, compress it to one sentence: 'it retries safely and it tells you when it's stuck.'"
+      data-ru="Этот слайд для айтишника в зале. Если его нет — сократите до одной фразы: «повторяет безопасно и сообщает, когда застряло»."></aside>
+  </section>
+
+  <!-- ============ 09 NUMBERS ============ -->
+  <section class="slide" data-title-en="Typical results" data-title-ru="Типичный результат">
+    <div class="eyebrow reveal" style="--i:0" data-en="What changes" data-ru="Что меняется"></div>
+    <h2><span class="kin" style="--i:1"><span data-en="Measured against your own baseline." data-ru="Сравнение с вашей же базой."></span></span></h2>
+    <div class="grid g4" style="margin-top:.6em">
+      <div class="card reveal" style="--i:3"><div class="stat">
+        <div class="num"><b data-count="0">0</b></div>
+        <div class="lbl" data-en="oversells after real-time stock sync, where the buffer is set correctly." data-ru="продаж «в минус» после синхронизации остатков при верно заданном буфере."></div></div></div>
+      <div class="card reveal" style="--i:4"><div class="stat">
+        <div class="num">&lt;<b data-count="60">0</b>&nbsp;s</div>
+        <div class="lbl" data-en="from a warehouse movement to Ozon knowing about it." data-ru="от движения на складе до того, как Ozon об этом узнал."></div></div></div>
+      <div class="card reveal" style="--i:5"><div class="stat">
+        <div class="num">−<b data-count="80">0</b>%</div>
+        <div class="lbl" data-en="manual operations per order — the copy-paste job disappears." data-ru="ручных операций на заказ — копипаст исчезает."></div></div></div>
+      <div class="card reveal" style="--i:6"><div class="stat">
+        <div class="num"><b data-count="99.9" data-dec="1">0</b>%</div>
+        <div class="lbl" data-en="sync uptime, with an alert before a queue becomes a problem." data-ru="доступность синхронизации, с алертом до того, как очередь станет проблемой."></div></div></div>
+    </div>
+    <p class="small reveal" style="--i:8"
+       data-en="Typical ranges from comparable projects. Week one of the audit measures your baseline, and the report is yours either way."
+       data-ru="Типичные диапазоны по сопоставимым проектам. Первая неделя аудита замеряет вашу базу, и отчёт остаётся вам в любом случае."></p>
+    <aside class="notes"
+      data-en="'The report is yours either way' is the risk-reversal. It converts the audit from a sales call into a deliverable."
+      data-ru="«Отчёт остаётся вам в любом случае» — снятие риска. Аудит превращается из звонка в результат."></aside>
+  </section>
+
+  <!-- ============ 10 STACK ============ -->
+  <section class="slide" data-title-en="Stack" data-title-ru="Стек">
+    <div class="eyebrow reveal" style="--i:0" data-en="Built on" data-ru="На чём построено"></div>
+    <h2><span class="kin" style="--i:1"><span data-en="Standard tools. Documented. Handover-ready." data-ru="Стандартные инструменты. С документацией. Готово к передаче."></span></span></h2>
+    <div class="grid g3" style="margin-top:.5em">
+      <div class="card reveal" style="--i:3"><div class="tag" data-en="Ozon side" data-ru="Сторона Ozon"></div>
+        <div class="chips" style="margin-top:.6em">
+          <span class="chip" data-en="Seller API" data-ru="Seller API"></span>
+          <span class="chip">Client-Id · Api-Key</span>
+          <span class="chip">FBO</span><span class="chip">FBS</span><span class="chip">realFBS</span>
+        </div>
+        <p style="margin-top:.7em" data-en="Official API only. No browser automation, no scraping — nothing that breaks when the cabinet changes."
+           data-ru="Только официальное API. Без автоматизации браузера и парсинга — ничего, что ломается при смене кабинета."></p></div>
+      <div class="card reveal" style="--i:4"><div class="tag" data-en="Your side" data-ru="Ваша сторона"></div>
+        <div class="chips" style="margin-top:.6em">
+          <span class="chip">1C</span><span class="chip">ERP</span><span class="chip">WMS</span>
+          <span class="chip">OData</span><span class="chip" data-en="CSV/SFTP fallback" data-ru="CSV/SFTP как запасной путь"></span>
+        </div>
+        <p style="margin-top:.7em" data-en="If your system has no API, there is still a path — and it is documented as temporary."
+           data-ru="Если у вашей системы нет API — путь всё равно есть, и он задокументирован как временный."></p></div>
+      <div class="card reveal" style="--i:5"><div class="tag" data-en="Middleware" data-ru="Слой интеграции"></div>
+        <div class="chips" style="margin-top:.6em">
+          <span class="chip">PostgreSQL</span><span class="chip">Redis</span><span class="chip">RabbitMQ</span>
+          <span class="chip">FastAPI</span><span class="chip">Docker</span>
+        </div>
+        <p style="margin-top:.7em" data-en="Queue-first design. Every side effect is a job, so nothing depends on a request staying alive."
+           data-ru="Дизайн «сначала очередь». Каждый эффект — задача, ничего не зависит от живого запроса."></p></div>
+      <div class="card reveal" style="--i:6"><div class="tag" data-en="Observability" data-ru="Наблюдаемость"></div>
+        <div class="chips" style="margin-top:.6em">
+          <span class="chip">Grafana</span><span class="chip">Prometheus</span><span class="chip">Sentry</span>
+          <span class="chip">Telegram alerts</span>
+        </div>
+        <p style="margin-top:.7em" data-en="Dashboards for sync health, cost and defect trend — the same numbers as the client deck."
+           data-ru="Дашборды по здоровью синхронизации, расходам и браку — те же цифры, что в презентации."></p></div>
+      <div class="card reveal" style="--i:7"><div class="tag" data-en="Process" data-ru="Процесс"></div>
+        <div class="chips" style="margin-top:.6em">
+          <span class="chip">Git</span><span class="chip">CI/CD</span>
+          <span class="chip" data-en="staging account" data-ru="тестовый аккаунт"></span>
+        </div>
+        <p style="margin-top:.7em" data-en="Changes ship through a pipeline, not through someone's laptop on a Friday."
+           data-ru="Изменения идут через пайплайн, а не через чей-то ноутбук в пятницу."></p></div>
+      <div class="card reveal" style="--i:8"><div class="tag" data-en="Handover" data-ru="Передача"></div>
+        <h4 style="margin-top:.5em" data-en="You own everything." data-ru="Всё принадлежит вам."></h4>
+        <p data-en="Repository, credentials in your vault, runbook, and a walkthrough with whoever maintains it next."
+           data-ru="Репозиторий, ключи в вашем хранилище, runbook и передача тому, кто будет это поддерживать."></p></div>
+    </div>
+    <aside class="notes"
+      data-en="The 'official API only' line is a differentiator. Many sellers have been burned by scraper-based integrations that broke overnight."
+      data-ru="Фраза «только официальное API» — это отличие. Многие селлеры уже обожглись на парсерах, которые сломались за одну ночь."></aside>
+  </section>
+
+  <!-- ============ 11 PACKAGES ============ -->
+  <section class="slide" data-title-en="Packages" data-title-ru="Пакеты">
+    <div class="eyebrow reveal" style="--i:0" data-en="Engagement" data-ru="Форматы работы"></div>
+    <h2><span class="kin" style="--i:1"><span data-en="Audit first. Then build only what pays." data-ru="Сначала аудит. Потом строим только то, что окупается."></span></span></h2>
+    <div class="tiers" style="margin-top:.5em">
+      <div class="tier reveal" style="--i:3">
+        <div class="kicker" data-en="Audit" data-ru="Аудит"></div>
+        <div class="price">45 000 ₽<em data-en="fixed" data-ru="фикс"></em></div>
+        <ul>
+          <li data-en="1 week, read-only access" data-ru="1 неделя, доступ только на чтение"></li>
+          <li data-en="Where the four leaks actually cost you" data-ru="Где именно стоят четыре утечки"></li>
+          <li data-en="Prioritised build plan with numbers" data-ru="План сборки по приоритетам с цифрами"></li>
+          <li data-en="Credited against the build" data-ru="Зачитывается в стоимость сборки"></li>
+        </ul>
+      </div>
+      <div class="tier feature reveal" style="--i:4">
+        <div class="kicker" data-en="Most chosen" data-ru="Выбирают чаще"></div>
+        <div class="kicker" style="color:var(--txt);letter-spacing:.14em" data-en="Core integration" data-ru="Базовая интеграция"></div>
+        <div class="price">290 000 ₽<em data-en="from" data-ru="от"></em></div>
+        <ul>
+          <li data-en="6–8 weeks, products + prices + stock" data-ru="6–8 недель, товары + цены + остатки"></li>
+          <li data-en="Orders and postings, FBS end to end" data-ru="Заказы и отправления, FBS целиком"></li>
+          <li data-en="Dashboard and alerts included" data-ru="Дашборд и алерты включены"></li>
+          <li data-en="30 days of hypercare after launch" data-ru="30 дней усиленной поддержки после запуска"></li>
+        </ul>
+      </div>
+      <div class="tier reveal" style="--i:5">
+        <div class="kicker" data-en="Scale" data-ru="Развитие"></div>
+        <div class="price">60 000 ₽<em data-en="/ month" data-ru="/ мес"></em></div>
+        <ul>
+          <li data-en="Returns, analytics, extra marketplaces" data-ru="Возвраты, аналитика, другие маркетплейсы"></li>
+          <li data-en="Monitoring and on-call during peak season" data-ru="Мониторинг и дежурство в сезон"></li>
+          <li data-en="Monthly review with the numbers" data-ru="Ежемесячный разбор с цифрами"></li>
+          <li data-en="Response time: 4 business hours" data-ru="Реакция: 4 рабочих часа"></li>
+        </ul>
+      </div>
+    </div>
+    <p class="small reveal" style="--i:7"
+       data-en="Figures are a starting point for discussion and depend on the number of SKUs and how open your current system is."
+       data-ru="Цифры — отправная точка для обсуждения и зависят от числа SKU и открытости вашей текущей системы."></p>
+    <aside class="notes"
+      data-en="Say the dependency clause out loud: price moves with SKU count and with how open the ERP is. It stops a fixed-price trap later."
+      data-ru="Проговорите оговорку: цена зависит от числа SKU и открытости ERP. Это спасает от ловушки фиксированной цены позже."></aside>
+  </section>
+
+  <!-- ============ 12 CTA ============ -->
+  <section class="slide" data-title-en="Next step" data-title-ru="Следующий шаг">
+    <div class="eyebrow reveal" style="--i:0" data-en="Next step" data-ru="Следующий шаг"></div>
+    <h1>
+      <span class="kin" style="--i:1"><span data-en="Give me read-only" data-ru="Дайте мне доступ"></span></span>
+      <span class="kin" style="--i:2"><span data-en="access for a week." data-ru="на чтение на неделю."></span></span>
+      <span class="kin" style="--i:3"><span class="grad" data-en="You'll get the map." data-ru="Вы получите карту."></span></span>
+    </h1>
+    <p class="reveal" style="--i:5;max-width:50ch"
+       data-en="One week, read-only, no obligation. You get a written map of what leaks, what it costs, and what it would take to close it. Then you decide."
+       data-ru="Одна неделя, только чтение, без обязательств. Вы получаете письменную карту: что утекает, сколько это стоит и что нужно, чтобы закрыть. Дальше решаете вы."></p>
+    <div class="callout reveal" style="--i:7;margin-top:.5em"
+       data-en="‹Your name› · hello@example.com · Telegram @yourhandle · +7 000 000-00-00"
+       data-ru="‹Ваше имя› · hello@example.com · Telegram @yourhandle · +7 000 000-00-00"></div>
+    <aside class="notes"
+      data-en="Read-only access is the low-friction ask. Never ask for write access in the first meeting."
+      data-ru="Доступ на чтение — просьба с минимальным трением. Никогда не просите право записи на первой встрече."></aside>
+  </section>
+
+</main>
+
+<footer class="bar">
+  <div class="rail"><div class="fill"></div></div>
+  <div class="count"><b>01</b> <span>/ 12</span></div>
+  <div class="hint">← → · F fullscreen · N notes · L язык · O overview</div>
+</footer>
+
+<div class="notesbar"><div class="nt">Presenter notes</div><div class="nb"></div></div>
+<div class="overview"></div>
+
+<script src="src/deck.js?v=2"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+{
+  "tag": "v0.0.1-tooltest",
+  "sha": "b320aa1b23399c7cb34f689667c06e3613d4c199",
+  "built_at": "2026-11-17T15:14:36+00:00",
+  "snapshot": {
+    "repo": {
+      "full_name": "muffyuniverse/testing",
+      "html_url": "https://github.com/muffyuniverse/testing",
+      "default_branch": "main",
+      "visibility": "public",
+      "license": "GPL-3.0",
+      "open_issues": 0
+    },
+    "head": {
+      "message": "Tool test: session fixtures and notes",
+      "sha": "fc196d93a45f2c9797974c01e87352d1dd8429f1",
+      "author": "Pechka",
+      "date": "2026-11-17T15:13:44Z"
+    },
+    "release": {
+      "tag": "dev-9",
+      "url": "https://github.com/muffyuniverse/testing/releases/tag/dev-9",
+      "assets": 2,
+      "published_at": "2026-11-15T02:52:26Z"
+    },
+    "runs": [
+      {
+        "name": "ship",
+        "conclusion": null,
+        "status": "in_progress",
+        "sha": "b320aa1b23399c7cb34f689667c06e3613d4c199",
+        "created_at": "2026-11-17T15:14:29Z",
+        "url": "https://github.com/muffyuniverse/testing/actions/runs/44112029958"
+      },
+      {
+        "name": "hello",
+        "conclusion": "success",
+        "status": "completed",
+        "sha": "fc196d93a45f2c9797974c01e87352d1dd8429f1",
+        "created_at": "2026-11-17T15:14:23Z",
+        "url": "https://github.com/muffyuniverse/testing/actions/runs/44112011165"
+      },
+      {
+        "name": "hello",
+        "conclusion": "success",
+        "status": "completed",
+        "sha": "c5914a1c9da5a58f67d16ec4d7a8d0e50fc1c57f",
+        "created_at": "2026-11-15T15:13:27Z",
+        "url": "https://github.com/muffyuniverse/testing/actions/runs/43728671805"
+      }
+    ]
+  }
+}
