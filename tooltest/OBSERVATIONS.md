@@ -329,3 +329,32 @@ non-numeric cell; `http` non-http URL; `browse` `action:"eval"`, `open` outside 
 `query` `ATTACH`, bad `db` shape, SQL errors; `write` into `shared/` or `agent/project-prompt/`;
 `pipe` step with a bare `steps` key, `when` on a failed step's body, `stop` with `value` and no
 `matches`.
+
+## 26. line-index edge cases and argument validation
+
+- `write` with `to:-1` means the last line, and `to:99` on a 4-line file clamps to EOF: both
+  replaced "from the given line to the end".
+- `write` with **`from:-2` does not count from the end**: it replaced the whole file from line 1
+  (on 3- and 6-line files alike). `read` with `from:-2` *does* count from the end. Asymmetry worth
+  knowing — a negative `from` on `write` silently widens the selection instead of failing.
+- `write` with `grep` + `from`/`to` narrows the replacement to those lines (only line 3 changed
+  inside a 2..4 window).
+- Creating a file with `from` but no `text` alone is refused: "There is no file at ... so there is
+  nothing to select from it. To make it, send `path` and `text` alone."
+- Unknown argument: `write` with `test` → **1** listing every allowed key and pointing at `help`.
+- `help {"of":"write"}` prints the full description, the **Takes** list and the **Shape** defaults.
+- `list depth:0` is accepted and behaves like depth 1 (only the folder).
+- `query` with `schema` but no `sql` → **1** `Say what to ask: {"sql":"SELECT …"}`.
+- `env section:"nope"` → **1** listing the valid sections; `env section:limits format:json`
+  returns the limits object.
+- `archive format:"7z"` → **1** listing zip/tar/tar.gz/tar.bz2/tar.xz/gz/bz2/xz.
+- `shot` `duration_ms:20000` → **1** "must be 0 ... or between 500 and 15000"; `fps:30` →
+  **1** "`fps` must be between 2 and 24" (duration checked first).
+- `http` `{{file:tooltest/data/gamma.json}}` in the body is expanded before sending (the local echo
+  route answered 200). A `HEAD` request returns headers only, still with `response_headers`.
+- `graph` with `delimiter:"\t"` parses a TSV; `header:false` with numeric `x`/`y` indices works.
+- `mcp` `format:"json"` returns the raw result object (`{"content":[{"text":...,"isError":true}]}`)
+  and still files it under `agent/mcp/`.
+- `background action:"cancel"` on an unknown/finished job → **1** "That job is not cancellable or
+  not running in this session; its outcome may be unknown."
+- `browse` `wait:"idle"` and `wait:"dom"` accepted; the answer names the saved page text.
