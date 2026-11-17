@@ -254,8 +254,13 @@ public final class Updater {
         }
     }
 
+    /** raw.githubusercontent answers with max-age=300; a unique query keeps the check honest. */
+    private static String bust(String url) {
+        return url + (url.contains("?") ? "&" : "?") + "t=" + System.currentTimeMillis();
+    }
+
     private static String httpGet(String url) throws Exception {
-        HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
+        HttpURLConnection c = (HttpURLConnection) new URL(bust(url)).openConnection();
         c.setConnectTimeout(15000);
         c.setReadTimeout(20000);
         c.setRequestProperty("User-Agent", "SelfDebug");
