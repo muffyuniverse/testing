@@ -1,0 +1,7 @@
+52:> Task :app:compileReleaseJavaWithJavac FAILED
+53:/home/runner/work/testing/testing/app/src/main/java/dev/pechka/selfdebug/MainActivity.java:56: error: non-static method install(Context) cannot be referenced from a static context
+59:FAILURE: Build failed with an exception.
+61:* What went wrong:
+62:Execution failed for task ':app:compileReleaseJavaWithJavac'.
+70:org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':app:compileReleaseJavaWithJavac'.
+103:Caused by: org.gradle.api.internal.tasks.compile.CompilationFailedException: Compilation failed; see the compiler error output for details.
