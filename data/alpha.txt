@@ -1,0 +1,10 @@
+alpha
+beta
+Gamma Up
+needle in a haystack
+
+tabbed	line
+  double  space
+ALPHA again
+9 nine
+end

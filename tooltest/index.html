@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tool test page</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; padding: 24px; background: #0f172a; color: #e2e8f0; }
+  h1 { color: #38bdf8; }
+  .card { background: #1e293b; border-radius: 12px; padding: 16px; margin: 12px 0; }
+  button { background: #38bdf8; border: 0; border-radius: 8px; padding: 10px 16px; font-weight: 600; }
+  #out { font-family: ui-monospace, monospace; color: #fbbf24; }
+</style>
+</head>
+<body>
+<h1>Tool test page</h1>
+<div class="card">
+  <p>Static page served by <code>serve</code>. Used to test browse, shot and look.</p>
+  <button id="go">Click me</button>
+  <p id="out">not clicked yet</p>
+</div>
+<div class="card">
+  <input id="field" placeholder="type here" value="">
+  <p id="typed">nothing typed</p>
+</div>
+<script>
+  let clicks = 0;
+  document.getElementById('go').addEventListener('click', () => {
+    clicks += 1;
+    document.getElementById('out').textContent = 'clicked ' + clicks + ' time(s)';
+  });
+  document.getElementById('field').addEventListener('input', (e) => {
+    document.getElementById('typed').textContent = 'typed: ' + e.target.value;
+  });
+</script>
+</body>
+</html>
