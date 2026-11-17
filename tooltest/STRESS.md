@@ -563,3 +563,15 @@ may already be done.
 early on. Cancellation of a CPU-bound regex is not prompt; the job only settles at a check point.
 The 1 MB variant finished by itself in 88 s, so the growth is far worse than linear (S4, S21).
 
+## S42. Field projection and line ranges
+
+- `read` with `delimiter:","` + `quote:"\""` + `fields:[2]` on a CSV correctly unquoted
+  `"Bob, Jr."` and returned the name column.
+- `fields:[5]` on a 3-field row → **1** "Row at line 1 has 3 field(s), so field 5 is out of range."
+- `write` with `from:10 to:20` on a 10-line file did **not** complain: it clamped `to` to EOF and
+  replaced line 10. A range past EOF is silently narrowed instead of refused.
+- Line counts in tool messages include a **phantom final empty line** for files that end with a
+  newline: a 93-byte file whose last byte is `\n` is reported as "11 lines total" while `tail 2`
+  shows `9 nine` / `end` and a character slice ends with `end\n`. Do not use the reported line count
+  as an exact measure of content.
+
