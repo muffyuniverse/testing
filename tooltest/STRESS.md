@@ -240,3 +240,82 @@ Two background `pipe` jobs started in the same message run concurrently. Three e
 | 10 series, unicode labels, negative values | OK |
 | non-numeric y | **1** "Line 2 column 1 (`a`) is not a finite number." |
 
+## S15. Patterns, `multi`, and greedy replacement
+
+- A pattern containing a **literal line break** is refused by `read` and `write`:
+  "That is not a pattern: it holds a line break, and a pattern looks inside one line."
+  This is confusing next to `multi`, which exists precisely to match across lines — `multi` works
+  only through character classes such as `[\s\S]*`, not through an actual newline in the pattern.
+- `list` has no `multi` argument at all; passing it produces the full allowed-argument list.
+- `read grep:"alpha[\s\S]*end" multi:true` returns the whole span as one numbered range `1-10:`.
+- `write grep:"[\s\S]*" multi:true` on a 3-line file replaced the content **twice**
+  (`[\s\S]*` also matches the empty string at EOF), leaving `ALL\nALL`. A greedy multi pattern can
+  duplicate as well as delete content — no confirmation, no size guard.
+- Patterns cannot match a literal newline, so "join lines" or "delete blank lines" cannot be
+  expressed directly.
+
+## S16. Pipe scoping and stop
+
+- `stop` with `return` inside a **nested** pipe exits only that inner block: the outer pipe carried
+  on, wrote the inner result and read it back (`inner-stop`).
+- Top-level `stop` with `sequence:99` answered "skipping the next 99 calls"; the single following
+  call came back `interrupted: skipped by stop`, and the turn ended there.
+- Unresolvable step references all give the same message — "`step` references are only available
+  inside `pipe` `steps`" — whether the id is a typo, a forward reference, a self reference, or a
+  numeric string (`"1"` instead of `1`). Only real positional numbers (`1`, `-1`) resolve.
+- `row:0` / `row:999999` → "There is no row N in this conversation ... use `query` on `agent_rows`".
+- `toolcall_body:N` pointing at a **failed** call → "Tool-call position N failed; use
+  `toolcall_result` to inspect its error."
+
+## S17. Filesystem oddities
+
+- `move` a folder into itself → **1** "A folder cannot be moved inside itself".
+- `write` to `tooltest/data/alpha.txt/child.txt` → **1** "There is already a "alpha.txt" here".
+- `move` with `into` naming a path that does not exist **renames** the file to that path
+  (`файл-😀.txt` → `sub`), while `into` ending in `/` targets the folder.
+- `write` to a folder path → "is a folder, so there is no text to write"; `read` of a folder →
+  "is a folder; use list with path to see its contents".
+
+## S18. Argument clamps (silent, no error)
+
+| argument | out-of-range value | observed |
+|---|---|---|
+| `list depth` | 17, 64 | clamped to 16, no complaint |
+| `list count` | 101 | clamped to 100 (`count:100`, `truncated:true`) |
+| `list count` | 0, -5 | treated as 1 ("stopped at 1 paths") |
+| `log count` | 0, -1 | treated as 1 |
+| `read from` | 0 | treated as 1 |
+| `read to` | 0 | means end of file |
+| `read context` | 21 | **refused** (0-20) |
+| `read char_count` | 20000 | **refused** (1-16000) |
+| `read paths` | 17 entries | **refused** (1-16) |
+| `shot fps` | 30 | **refused** (2-24) |
+| `shot duration_ms` | 20000 | **refused** (500-15000) |
+
+The clamps are the more dangerous kind: a caller asking for `depth:64` silently gets 16 and may
+conclude the tree is shallow (see S3, where that hid real files).
+
+## S19. Context cost of the tools themselves
+
+From `agent_rows` (own conversation), grouped by tool and total tokens spent:
+
+| tool | calls | avg tokens | max | total |
+|---|---|---|---|---|
+| background | 55 | 199 | 655 | 10,971 |
+| http | 41 | 132 | 602 | 5,404 |
+| list | 43 | 100 | 692 | 4,281 |
+| mcp | 10 | 339 | 1,410 | 3,391 |
+| write | 144 | 21 | 162 | 3,085 |
+| read | 112 | 27 | 561 | 3,052 |
+| diff | 16 | 167 | 930 | 2,664 |
+| status | 14 | 168 | 296 | 2,354 |
+
+- `background action:list` is the most expensive per call and its cost **grows with every job**
+  because it returns the whole history; polling it repeatedly to measure timings was the single
+  largest line item in this session.
+- `status` costs ~170 tokens even when nothing changed (it re-lists every staged path).
+- `list` with the default JSON format is verbose: `format:"text"` returned the same information in
+  a fraction of the space in every comparison made here.
+- `mcp` averages 339 because tool descriptions/schemas are large; `mcp` with `server` alone (no
+  `tool`) re-prints every schema each time.
+
