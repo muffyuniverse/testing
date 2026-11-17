@@ -648,3 +648,21 @@ local server. The capture recorded `body_bytes:49047` and stored the body as
 (`a558b869…`). Binary uploads work and the capture does not inline binary into its JSONL — it points
 at a `.bin` file, which is the right shape for large or binary bodies.
 
+## S51. `app_rpc` in practice
+
+With `ai.pechka.factory` approved (cert `1JkPbM/Teof116d+EJWZpfon2/tcZxrS8rxRacKomWA`):
+
+- `list` names each approved app, its authority and pinned certificate digest.
+- `methods` returns the provider's full method list with descriptions (17 methods here).
+- `factory.status` → `{counter:0, …}`; `factory.bump` → `{counter:1, …}`; a second `status` still says
+  1 — state lives in the app process, not in the call.
+- `app.info` reports pid, version, `used_memory_mb` and `resumed_activity`.
+- `launch` answered "Launched …" but `resumed_activity` stayed `null` and `ui.tree`/`ui.shot` failed with
+  JSON-RPC error `-32000: No resumed Activity. Call launch first.` — the screen was off, and Android
+  will not resume an activity for a background start. Non-UI methods (`app.info`, `factory.*`,
+  `debug.logcat`) kept working, so the provider is usable in the background for everything except UI.
+- Each such failure returns a full stack trace (~15 lines). Useful once, noise afterwards.
+
+**Consequence for the self-debug app:** `ui.*` and the installer intent need the app in the foreground.
+That is why the updater posts a notification when `visible == false` instead of starting the installer
+from the background — Android 10+ silently blocks background activity starts.
