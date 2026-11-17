@@ -319,3 +319,29 @@ From `agent_rows` (own conversation), grouped by tool and total tokens spent:
 - `mcp` averages 339 because tool descriptions/schemas are large; `mcp` with `server` alone (no
   `tool`) re-prints every schema each time.
 
+## S20. What a self-check can and cannot see
+
+- **Pipe internals are invisible to `agent_rows`.** A failing step inside a `pipe` (even with
+  `allow_failure:true`) leaves no `GOT` row; only the pipe's final result is recorded. A guard that
+  counts failures from inside the same pipe therefore always sees 0 and never trips.
+- A guard *can* work one level up: `query` counting the last two top-level `GOT` rows for a tool,
+  then `stop` with `{"value":{"toolcall_body":1,...}}` in the same response. Verified: `n=1` →
+  "condition was 0; the sequence continues"; `n=2` → the return text, and the next call came back
+  `interrupted: skipped by stop`.
+- **Long arguments are fragile inline.** A ~1.5 KB URL passed as a literal `request` was lost twice
+  (the call arrived as `{"direct": true}`), and each time the tool answered with its usage text
+  while the loop kept running. The same URL sent from `agent/http/longurl.http` via
+  `"request": "@agent/http/longurl.http"` worked first time. Write big documents to a file.
+
+## S21. Cancelling a runaway background job
+
+- `background {"action":"cancel","job":"regex-a35"}` answered "Cancellation requested for
+  agent/background_results/regex-a35; remote effects may continue."
+- The job's file then read: "Cancellation requested; effects may be partial or unknown. nothing in
+  tooltest/stress/a35.txt matches that selection" — i.e. a cancelled job settles as a normal
+  result with a preamble, not as a separate "cancelled" state.
+- Measured cost of the catastrophic regex `(a+)+$`: 1 MB (200k a's, one 1 MB line) took **88 s** in
+  the background; the 2 MB variant had still not returned when it was cancelled ~30 min later. The
+  same pattern against 250k a's was killed at the 180 s foreground limit. There is no regex time
+  budget — only "foreground gives up, background keeps burning a core".
+
