@@ -1,8 +1,8 @@
 {
-  "versionCode": 7,
-  "versionName": "1.0.7",
-  "apkUrl": "https://github.com/muffyuniverse/testing/releases/download/debug-7/selfdebug.apk",
-  "sha256": "0820b7b23de765b5218f470edbb4f1241ec520935a4316f1a0cf6144b82a31fa",
+  "versionCode": 8,
+  "versionName": "1.0.8",
+  "apkUrl": "https://github.com/muffyuniverse/testing/releases/download/debug-8/selfdebug.apk",
+  "sha256": "0f4f11db15c0fcbad62ec28921290272e2c56bf13f409ae5a191f57cd4d4b1c9",
   "certSha256": "FB:5B:25:39:07:5C:9B:97:0D:9C:A4:5D:BF:1F:CD:2C:DF:BD:63:3E:06:03:31:0C:3C:9C:E9:E5:9E:38:EC:36",
-  "builtAt": "2026-11-17T17:43:03Z"
+  "builtAt": "2026-11-17T17:47:38Z"
 }
