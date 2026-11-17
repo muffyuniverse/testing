@@ -53,7 +53,7 @@ public class MainActivity extends Activity {
         setContentView(scroll);
 
         Updater.setStatusSink(s -> ui.post(() -> status.setText(s)));
-        DebugHooks.install(this);
+        DebugHooks.INSTANCE.install(this);
         Updater.check(this, false);
     }
 
