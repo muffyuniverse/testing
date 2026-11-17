@@ -63,7 +63,21 @@ jobs:
 
       - name: Build release APK
         run: |
-          gradle :app:assembleRelease --no-daemon -Pvc=${GITHUB_RUN_NUMBER} -Pvn=1.0.${GITHUB_RUN_NUMBER}
+          set +e
+          gradle :app:assembleRelease --no-daemon --console=plain --stacktrace \
+            -Pvc=${GITHUB_RUN_NUMBER} -Pvn=1.0.${GITHUB_RUN_NUMBER} 2>&1 | tee build.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            sed -r 's/\x1B\[[0-9;]*[A-Za-z]//g' build.log \
+              | grep -nE "error:|FAILURE|What went wrong|Caused by|Could not |Unresolved|> Task .*FAILED|Execution failed" \
+              | tail -120 > build-error.txt || true
+            git config user.name "pechka-bot"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add build-error.txt
+            git commit -m "CI build error ${GITHUB_RUN_NUMBER} [skip ci]" || true
+            git push || (git pull --rebase && git push) || true
+          fi
+          exit $status
 
       - name: Collect artifact
         run: |
@@ -87,6 +101,9 @@ jobs:
           set -e
           TAG="debug-${GITHUB_RUN_NUMBER}"
           SHA=$(cat out/sha256.txt)
+          CERT=$(keytool -list -v -keystore keystore/keystore.jks -storepass "$KS_PASS" \
+            | sed -n 's/.*SHA256: //p' | head -1)
+          echo "cert=$CERT"
           mkdir -p app/update
           cat > app/update/version.json <<EOF
           {
@@ -94,6 +111,7 @@ jobs:
             "versionName": "1.0.${GITHUB_RUN_NUMBER}",
             "apkUrl": "https://github.com/muffyuniverse/testing/releases/download/${TAG}/selfdebug.apk",
             "sha256": "${SHA}",
+            "certSha256": "${CERT}",
             "builtAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           }
           EOF
