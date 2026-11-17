@@ -575,3 +575,34 @@ The 1 MB variant finished by itself in 88 s, so the growth is far worse than lin
   shows `9 nine` / `end` and a character slice ends with `end\n`. Do not use the reported line count
   as an exact measure of content.
 
+## S43. `graph` does not skip text columns by default
+
+- A CSV with `id,name` and rows `1,Ann` fails with "Line 2 column 2 (`Ann`) is not a finite number."
+  The default `y` is every column after `x`, and a non-numeric one is an error rather than being
+  skipped. Charts of real data need an explicit `y`.
+- With `x:"name"` and `y:["id"]` the same file plots fine — so a text x-axis is allowed, and a
+  UTF-8 BOM on the first header cell is handled (`x:"name"` matched even though the file starts
+  with `\uFEFFid`).
+- Quoted labels containing the delimiter (`"a,b",5`) parse correctly.
+
+## S44. Name length
+
+| name | answer |
+|---|---|
+| 150 chars | **1** "A name cannot be longer than 120 characters" |
+| 200 chars | same message |
+| 256 chars (name + `.txt`) | **1** "That path could not be read" — the filesystem limit hits first and the message loses the useful part |
+| contains a newline | **1** "A name cannot contain control characters" |
+
+So the useful cap is 120 characters per path segment, but between 120 and the filesystem's 255 the
+error degrades into "That path could not be read".
+
+## S45. Archive round trip
+
+- `archive` packed `tooltest` (145 files, 59,695 bytes) into `tt-pack.zip` in the project root,
+  listing every member in the answer.
+- Unpacking into `tt-unpack` restored 145 files; `big6.txt` has the same 49,764 bytes and the same
+  sha256 (`940b62…`) in both places.
+- Both artefacts were removed afterwards. Note the pack included `data/test.sqlite` and its
+  `-journal` file — an archive takes whatever is on disk, journals included.
+
