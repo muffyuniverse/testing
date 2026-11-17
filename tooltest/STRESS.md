@@ -508,3 +508,58 @@ page" rather than "this page is slow".
   keyboard, a Mac file name or a normalising editor can look identical and still not match. Compare
   on a distinctive ASCII anchor, or replace by line range.
 
+## S36. A failed pipe leaves partial effects, silently
+
+Pipe of three steps: write `partial-a.txt`, read a missing file, write `partial-b.txt`.
+Result: **1** "step 2: There is no file at ...". `partial-a.txt` exists; `partial-b.txt` does not.
+The answer names only the failing step and does not say that earlier steps already ran, so a
+"failed" pipe can still have changed files.
+
+## S37. `when` and `step_error`
+
+- `when:{"value":{"step":"a"},"matches":"^beta"}` skipped its step; `matches:"^alpha"` ran it. Only
+  the running branch's file existed afterwards.
+- `allow_failure:true` plus `text:{"step_error":"f"}` wrote the failing step's error text to a file,
+  so a failure can be recorded as data instead of aborting the chain.
+
+## S38. Boundaries: what agents cannot touch
+
+| target | answer |
+|---|---|
+| `agent/project-prompt/test.md` | "agent/project-prompt/ is read-only for agents; only the person can edit project instructions." |
+| `../shared/user/test.md` | "shared/user/test.md is in the shared folder ... nothing you can do changes it." |
+| `../shared/onboarding/test.md` | same refusal |
+| `.git/config` (read) | "Git's internal files are managed by the app, not agent tools." |
+| `.pechka/test.txt` | "A name that starts with a dot belongs to the app" |
+| `.gitkeep` | "is an app-managed folder marker and cannot be changed" |
+| `.env.example`, `.env.test`, `.envrc` | "is locked, so it cannot be changed" |
+| `.netrc`, `.aws/credentials`, `.ssh/config`, `.npmrc` | **created without complaint** (reported as an advisory) |
+| `tooltest/.dotfile.txt` | allowed — dot-names are only special at the branch root / for app folders |
+
+## S39. `delimiter` is literal
+
+`graph delimiter:"\\t"` (backslash + t) does not split TSV: "Line 2 column 1 (`Jan\t10`) is not a
+finite number." Passing an actual TAB character works. The same rule applies to `query delimiter`
+and `read delimiter`.
+
+## S40. Six jobs at once: one comes back "unknown" although it succeeded
+
+Six `query` jobs started in one response (registered within ~10 ms). Five report `finished`/0.
+`conc2` reports **`state:"unknown", status:1`** with a `finished_at`, while its file contains a
+perfectly good result:
+
+```
+read agent/background_results/conc2 -> 0 / a / 2
+```
+
+The state is stable across repeated `list` calls, so it is not a transient. Reported as an advisory.
+Practical rule: for any job the list calls `unknown`, read the file before re-running it — the work
+may already be done.
+
+## S41. How long a cancelled regex really ran
+
+`regex-a35` (2 MB single line, `(a+)+$`): started 1794929897818, `finished_at` 1794932650835 →
+**2,753,017 ms ≈ 45.9 minutes**, even though `action:"cancel"` had answered "Cancellation requested"
+early on. Cancellation of a CPU-bound regex is not prompt; the job only settles at a check point.
+The 1 MB variant finished by itself in 88 s, so the growth is far worse than linear (S4, S21).
+
