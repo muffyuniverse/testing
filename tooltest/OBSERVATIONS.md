@@ -371,3 +371,28 @@ non-numeric cell; `http` non-http URL; `browse` `action:"eval"`, `open` outside 
 - Practical rule: whole-project restore is destructive to unpushed commits; single-path restore
   only touches that file and leaves the change staged. Both differ from the documented `keep`
   behaviour noted in section 20.
+
+## 28. last edge cases
+
+- `original` occurring twice → **1** "That text appears 2 times in <path> ... Give more of the
+  surrounding text so it is unique, or use `grep` if every match should change."
+- `read paths:[good, missing]` fails as a whole (**1**, naming the missing file); the good file's
+  content is not returned.
+- `list grep` + `case_sensitive:true` narrows to the exact-case match only.
+- `query` batch binding requires a write statement: `SELECT ? AS a, ? AS b` with `data` →
+  **1** "Batch row execution requires an INSERT, REPLACE, UPDATE or DELETE statement in `sql`."
+- `query quote:""` on import keeps the naive split: `"Bob, Jr.",20` stored as `"Bob` and ` Jr."`
+  (confirming quoting is on by default everywhere else).
+- `browse action:"switch"` → **1** "Switching shared tabs is available in Firefox."
+- `shot full:true` on `https://example.com` produced a 229 KB full-page PNG; `browse` of the same
+  URL returned the page in several languages and named the saved text file.
+
+## 29. coverage summary
+
+Exercised with real calls: `help`, `env`, `list`, `read`, `write`, `delete`, `move`, `query`,
+`graph`, `restore`, `stop`, `pipe`, `background`, `browse`, `shot`, `look`, `archive`, `http`,
+`mcp`, `serve`, `commit`, `push`, `pull`, `tag`, `diff`, `status`, `log`, `notify`, `report_bug`.
+
+Blocked by environment, not by arguments: `ssh`/`sftp` (no vault-bound host credential),
+`app_rpc` `methods`/`call` (app not approved in Settings), `browse open`/`switch` (Firefox only),
+`background cancel` of a live job (no job stayed running long enough).
