@@ -1,0 +1,61 @@
+plugins {
+    id "com.android.application"
+    id "org.jetbrains.kotlin.android"
+}
+
+def vc = (project.findProperty("vc") ?: "1").toInteger()
+def vn = (project.findProperty("vn") ?: "1.0.0").toString()
+
+android {
+    namespace "dev.pechka.selfdebug"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "dev.pechka.selfdebug"
+        minSdk 26
+        targetSdk 34
+        versionCode vc
+        versionName vn
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    signingConfigs {
+        release {
+            def ks = rootProject.file("keystore/keystore.jks")
+            if (ks.exists()) {
+                storeFile ks
+                storePassword System.getenv("KS_PASS") ?: "pechka-test"
+                keyAlias System.getenv("KS_ALIAS") ?: "pechka"
+                keyPassword System.getenv("KS_PASS") ?: "pechka-test"
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    lint {
+        abortOnError false
+    }
+}
+
+dependencies {
+    implementation "androidx.core:core:1.13.1"
+}

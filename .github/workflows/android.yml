@@ -1,0 +1,104 @@
+name: android
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "app/**"
+      - "build.gradle"
+      - "settings.gradle"
+      - "gradle.properties"
+      - ".github/workflows/android.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  KS_PASS: pechka-test-keystore
+  KS_ALIAS: pechka
+  PACKAGE: dev.pechka.selfdebug
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Signing keystore (generated once, then reused)
+        run: |
+          set -e
+          mkdir -p keystore
+          if [ ! -f keystore/keystore.b64 ]; then
+            echo "generating a new keystore"
+            keytool -genkeypair -keystore keystore/keystore.jks -storetype PKCS12 \
+              -keyalg RSA -keysize 2048 -validity 10000 -alias "$KS_ALIAS" \
+              -storepass "$KS_PASS" -keypass "$KS_PASS" \
+              -dname "CN=Self Debug, OU=Test, O=Pechka, L=Test, ST=Test, C=US"
+            base64 -w0 keystore/keystore.jks > keystore/keystore.b64
+            rm -f keystore/keystore.jks
+            git config user.name "pechka-bot"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add keystore/keystore.b64
+            git commit -m "Bootstrap signing keystore [skip ci]"
+            git push
+          fi
+          base64 -d keystore/keystore.b64 > keystore/keystore.jks
+          keytool -list -v -keystore keystore/keystore.jks -storepass "$KS_PASS" \
+            | grep -E "SHA256:|Alias name:" || true
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Android SDK
+        run: |
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager "platforms;android-34" "build-tools;34.0.0" > /dev/null 2>&1 || true
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.7"
+
+      - name: Build release APK
+        run: |
+          gradle :app:assembleRelease --no-daemon -Pvc=${GITHUB_RUN_NUMBER} -Pvn=1.0.${GITHUB_RUN_NUMBER}
+
+      - name: Collect artifact
+        run: |
+          mkdir -p out
+          cp app/build/outputs/apk/release/app-release.apk out/selfdebug.apk
+          sha256sum out/selfdebug.apk | awk '{print $1}' > out/sha256.txt
+          echo "sha=$(cat out/sha256.txt) bytes=$(stat -c%s out/selfdebug.apk)"
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="debug-${GITHUB_RUN_NUMBER}"
+          gh release create "$TAG" out/selfdebug.apk \
+            --title "Self Debug 1.0.${GITHUB_RUN_NUMBER}" \
+            --notes "Automated build from ${GITHUB_SHA:0:7}" \
+            --latest || gh release upload "$TAG" out/selfdebug.apk --clobber
+
+      - name: Publish update manifest
+        run: |
+          set -e
+          TAG="debug-${GITHUB_RUN_NUMBER}"
+          SHA=$(cat out/sha256.txt)
+          mkdir -p app/update
+          cat > app/update/version.json <<EOF
+          {
+            "versionCode": ${GITHUB_RUN_NUMBER},
+            "versionName": "1.0.${GITHUB_RUN_NUMBER}",
+            "apkUrl": "https://github.com/muffyuniverse/testing/releases/download/${TAG}/selfdebug.apk",
+            "sha256": "${SHA}",
+            "builtAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+          git config user.name "pechka-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/update/version.json
+          git commit -m "Update manifest for build ${GITHUB_RUN_NUMBER} [skip ci]" || true
+          git push || (git pull --rebase && git push) || true
