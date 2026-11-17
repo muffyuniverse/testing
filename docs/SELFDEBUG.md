@@ -8,11 +8,13 @@ that the same workflow rewrites on every build.
 
 1. Install the newest APK:
    `https://github.com/muffyuniverse/testing/releases/latest/download/selfdebug.apk`
+   (first build: `…/releases/download/debug-3/selfdebug.apk`, 1,544,159 bytes,
+   sha256 `2331a7a7f9de9f86ecce71dbc2e076b548dacea73e787410662fb6ce3806688e`)
 2. Open it once (it will ask to check for updates; that is fine).
 3. In Pechka, approve `dev.pechka.selfdebug` and pin this signing certificate SHA-256:
 
    ```
-   FINGERPRINT_PLACEHOLDER
+   FB:5B:25:39:07:5C:9B:97:0D:9C:A4:5D:BF:1F:CD:2C:DF:BD:63:3E:06:03:31:0C:3C:9C:E9:E5:9E:38:EC:36
    ```
 
    (The same value is printed by the workflow in the "Signing keystore" step and stored in
