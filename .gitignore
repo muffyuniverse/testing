@@ -27,9 +27,3 @@ extra.txt
 
 # Downloaded media samples for testing editors. Local only: binaries stay out of the repo.
 samples/
-data.zip
-data.tar.gz
-secret-aes.enc
-secret-chacha.enc
-secret-cbc.enc
-secret-legacy.enc

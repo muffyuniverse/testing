@@ -260,3 +260,72 @@ Field projection (`delimiter` / `fields` / `quote` / `out_delimiter` / `trim_fie
 - `agent/` writes are allowed and are not committed.
 
 ---
+
+## 18. read/query size limits
+
+- A `read` whose selection would be about 10.5k tokens is **not** performed; the answer is
+  status **0** with "That read is about 10514 tokens, above the 6000 limit. ... read smaller
+  character slices". No file is created; the original is untouched.
+- `char_count` is capped at 16000 per call, so a large file can be stitched together with a
+  `pipe` of char slices + `append` writes (verified: 36 KB rebuilt byte-for-byte, same SHA-256).
+- `query` CSV export caps at **1000 rows**: a 20000-row recursive CTE wrote a 1002-line file and
+  the answer said "1000 rows of 20000 (capped at 1000)".
+- `direct:true` together with `name` both returns the text inline and files it
+  (`read` → `agent/background_results/`, `query` → `agent/sql/`).
+
+## 19. archive: single-file formats
+
+- `gz`, `bz2` and `xz` pack a single file (`alpha.txt` 93 B → 100 / 120 / 152 B) and unpack to the
+  given `name` (no extension needed); all three round-trip to identical content.
+- `unpack` of a plain `.gz` names the output exactly as given, not `alpha.txt`.
+
+## 20. restore
+
+- `restore path` + `revision` writes that version back.
+- Observed: **both** `keep:false` (default) and `keep:true` leave the change **staged** and create
+  no commit; `log` never grew a restore entry and `status` showed `M <path>` under Staged in both
+  cases. The documented difference ("keep leaves the restored text staged rather than committed")
+  was not observable. Filed as an advisory bug report.
+- Restoring content identical to HEAD leaves a clean tree in both modes.
+
+## 21. protected paths
+
+- `delete tooltest/w/.gitkeep` → **1** "is an app-managed folder marker and cannot be changed."
+  (`.gitkeep` files are created automatically for new folders and cannot be removed.)
+- `write agent/project-prompt/probe.md` → **1** "agent/project-prompt/ is read-only for agents;
+  only the person can edit project instructions." `list root:agent/project-prompt` → nothing listed.
+- `write ../shared/user/...` → **1**, shared folder belongs to the person.
+
+## 22. git remote
+
+- `push` → "Pushed main to main at fc196d9." (5 local commits sent, no force).
+- `tag push v0.0.1-tooltest` → "Sent tag `v0.0.1-tooltest`."; `tag list remote:true` then showed it.
+- `pull` after push → "Already up to date".
+
+## 23. notify / report_bug
+
+- `notify` with a title, message and two links (one branch path, one `http://127.0.0.1` URL) →
+  "Notification submitted; Android controls its display." and echoed both links.
+- `report_bug` → advisory id returned and a line pointing at
+  `Download/Pechka agent reports/agent-report-*.log.txt`; it is outside the workspace.
+
+## 24. browser session state leaks between calls
+
+- A `setInterval` started through `shot`'s `eval` (recording a 2 s video) **kept running in the
+  live session** afterwards: a later read reported "clicked 990 time(s)".
+  A session is a real live tab — script side effects persist until `close`.
+- `scroll` with a pixel amount (`200`) on a page shorter than the viewport reports
+  "Scrolled (0px)" — it does not error.
+- `serve stop` with `server:"*"` stopped every server in the branch.
+
+## 25. summary of refusals seen (all with clear messages)
+
+`write` nonempty without `overwrite`; `original` not present; wrong `if_sha256`; `read` missing
+file, binary file, past EOF, `char_count` > 16000; `list` bad cursor; `move` to an existing
+destination or from a missing source; `delete` missing path and app-managed `.gitkeep`;
+`archive` bad `name` shape, existing destination, non-`.enc` unseal, wrong key; `graph`
+non-numeric cell; `http` non-http URL; `browse` `action:"eval"`, `open` outside Firefox, bad host;
+`mcp` unknown server; `app_rpc` unapproved app; `ssh`/`sftp` without a vault-bound credential;
+`query` `ATTACH`, bad `db` shape, SQL errors; `write` into `shared/` or `agent/project-prompt/`;
+`pipe` step with a bare `steps` key, `when` on a failed step's body, `stop` with `value` and no
+`matches`.
