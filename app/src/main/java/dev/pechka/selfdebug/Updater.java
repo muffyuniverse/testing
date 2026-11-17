@@ -1,9 +1,14 @@
 package dev.pechka.selfdebug;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -42,6 +47,11 @@ public final class Updater {
     private static volatile Consumer<String> sink;
     private static volatile String lastStatus = "idle";
     private static volatile long lastCheck = 0L;
+    private static volatile boolean visible = false;
+
+    public static void setVisible(boolean v) {
+        visible = v;
+    }
 
     private Updater() {
     }
@@ -194,13 +204,54 @@ public final class Updater {
             ctx.startActivity(s);
             return "permission_requested";
         }
+        Intent i = installIntent(ctx, apk);
+        if (visible) {
+            try {
+                ctx.startActivity(i);
+                status("installer opened");
+                return "opened";
+            } catch (Throwable t) {
+                status("installer start failed: " + t);
+            }
+        }
+        notifyInstaller(ctx, i);
+        return "notified";
+    }
+
+    private static Intent installIntent(Context ctx, File apk) {
         Uri uri = FileProvider.getUriForFile(ctx, ctx.getPackageName() + ".files", apk);
         Intent i = new Intent(Intent.ACTION_VIEW);
         i.setDataAndType(uri, "application/vnd.android.package-archive");
         i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
-        ctx.startActivity(i);
-        status("installer opened");
-        return "opened";
+        return i;
+    }
+
+    /** Android blocks background activity starts, so a background update lands as a notification. */
+    private static void notifyInstaller(Context ctx, Intent install) {
+        try {
+            NotificationManager nm =
+                    (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm == null) {
+                status("no notification service");
+                return;
+            }
+            NotificationChannel ch = new NotificationChannel("updates", "Updates",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            nm.createNotificationChannel(ch);
+            PendingIntent pi = PendingIntent.getActivity(ctx, 1, install,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            Notification n = new Notification.Builder(ctx, "updates")
+                    .setSmallIcon(android.R.drawable.stat_sys_download_done)
+                    .setContentTitle("Update ready")
+                    .setContentText("Tap to install the new Self Debug build")
+                    .setContentIntent(pi)
+                    .setAutoCancel(true)
+                    .build();
+            nm.notify(1, n);
+            status("update notification posted");
+        } catch (Throwable t) {
+            status("notification failed: " + t);
+        }
     }
 
     private static String httpGet(String url) throws Exception {
