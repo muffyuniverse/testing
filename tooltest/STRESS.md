@@ -449,3 +449,46 @@ So: wrap the expression in a function to read a value, and do not use `return`.
   session; new tabs must be enabled in the extension." A session is created by passing `url` with a
   `session` name instead.
 
+## S29. `query` exports are capped at 1,000 rows
+
+- A recursive CTE producing **50,000** rows exported to `agent/sql/bulk50k` answered
+  "1000 rows of 50000 (capped at 1000)". The file really holds 1,000 rows (tail shows `1000,6`;
+  re-importing it gave exactly 1,000 rows).
+- So `query` cannot be used to dump a large table in one call: bulk export needs
+  `LIMIT 1000 OFFSET n` paging. The earlier "200,000-row" exports in this project were 1,000-row
+  files too.
+- Re-importing the 1,000-row CSV with `path` + `header:true` + `schema` worked (1,000 affected).
+
+## S30. `list` with `root` and `path`
+
+- `root:"../shared"` lists account files as `../shared/...` paths, and `depth:1` stops at the three
+  top-level folders.
+- The `path` regex is matched against the **full returned path**, prefix included: `^\.md$` finds
+  nothing under `../shared`, while `onboarding/.*\.md$` finds the notes. The same rule explains why
+  `^tooltest/` works from the branch root.
+
+## S31. Template expansion is raw text, not context-aware
+
+- `{{file:tooltest/data/alpha.txt}}` in a `text/plain` POST body arrived byte-for-byte (94 bytes,
+  newlines and tabs intact).
+- The same expansion inside a **JSON** body does not escape anything:
+  `{"data": "{{file:tooltest/data/beta.csv}}"}` produced
+  `{"data": "id,name,score<newline>1,Ann,10<newline>2,"Bob, Jr.",20 ..."}` — the file's own quotes
+  close the JSON string, so the request body is invalid JSON. No warning, no error; the server
+  received the broken body (content-length 60).
+- Consequence: a file or secret interpolated into JSON must already be JSON-safe (or be sent as a
+  raw body / `body_file`). The tool has no "escape for this context" mode.
+
+## S32. `{{secret:...}}` host binding
+
+`Authorization: Bearer {{secret:github-muffyuniverse}}` sent to `example.com` →
+**1** "The secret "github-muffyuniverse" is not for example.com. It is stored for github.com (all
+projects), and the app will not send it anywhere else." Good guardrail, clear message.
+
+## S33. `patch_bytes` limits the patch, not the file
+
+- `write` with `grep:"^x$"` on a 6-line file, replacement text taken from an 8,293-byte file, made a
+  **49,764-byte** file. The limit applies to the `text` argument (200 kB), not to the result.
+- With 64 matching lines a single 200 kB patch can produce a ~12.8 MB file. There is no size check
+  on the written file itself.
+
