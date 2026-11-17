@@ -76,7 +76,18 @@ project; the rest come from the tool contract and were only partially exercised.
 - Two 200k-row SQL inserts against the same SQLite namespace both succeeded — no `SQLITE_BUSY`
   observed (S2).
 
-## 6. Gaps worth fixing in the app
+## 6. Where the documentation and the behaviour differ
+
+| documented | observed |
+|---|---|
+| `browse` eval supports `return` | `return` is a SyntaxError; only an IIFE yields a value (S27) |
+| `list depth` counts "below the search root" | with a regex `path` it counts from the branch root, so real files fall outside the window (S3) |
+| `query` says "large or capped results are refused rather than truncated" | a 50,000-row SELECT wrote a CSV **truncated to 1,000 rows** with only a line of prose saying so (S29) |
+| `write` `multi` lets a pattern match across lines | a literal newline in the pattern is refused; only character classes such as `[\s\S]` span lines (S15) |
+| `write` `append` adds text at EOF | it adds exactly the text, with no newline, so it lands on the same line as an unterminated last line |
+| `read` `return`s "numbered lines or excerpts" | line counts include a phantom empty line after a trailing newline (S42) |
+
+## 7. Gaps worth fixing in the app
 
 1. **No progress detection**: the same failing call can repeat while the UI shows "working" (S20).
 2. **No regex time budget**: only "foreground gives up, background keeps burning a core" (S21).

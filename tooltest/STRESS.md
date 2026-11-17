@@ -606,3 +606,19 @@ error degrades into "That path could not be read".
 - Both artefacts were removed afterwards. Note the pack included `data/test.sqlite` and its
   `-journal` file — an archive takes whatever is on disk, journals included.
 
+## S46. Cost of the session itself
+
+From `roll_day` for today, project `testing`/`main`: **424 requests, 51.4 M prompt tokens, 600 k
+completion tokens, $0.3685**. Another agent on this phone (`browser-agent`) spent $0.3259 over 459
+requests at the same time; `motion-design` spent $0.0772. Every turn resends the whole remaining
+context, so a long exploration is dominated by prompt tokens, not by output.
+
+## S47. Two more doc/behaviour mismatches
+
+- `help query` says "large or capped results are refused rather than truncated". In practice a
+  50,000-row SELECT wrote a CSV **capped at 1,000 rows** (S29) — truncated, not refused. Only
+  `direct:true` refuses when the answer is too large.
+- `help write` says `append:true` "adds text at EOF without inserting a newline" — correct, and it
+  means appending to a file that ends with `\n` starts a new line, while appending to one that does
+  not continues the same line. Verified both.
+
