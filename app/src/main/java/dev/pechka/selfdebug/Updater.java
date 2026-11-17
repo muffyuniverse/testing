@@ -256,6 +256,8 @@ public final class Updater {
 
     /** raw.githubusercontent answers with max-age=300; a unique query keeps the check honest. */
     private static String bust(String url) {
+        // The contents API 404s on unknown query parameters, and needs no busting anyway.
+        if (url.contains("api.github.com")) return url;
         return url + (url.contains("?") ? "&" : "?") + "t=" + System.currentTimeMillis();
     }
 
