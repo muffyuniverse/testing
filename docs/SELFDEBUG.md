@@ -8,8 +8,8 @@ that the same workflow rewrites on every build.
 
 1. Install the newest APK:
    `https://github.com/muffyuniverse/testing/releases/latest/download/selfdebug.apk`
-   (first build: `…/releases/download/debug-3/selfdebug.apk`, 1,544,159 bytes,
-   sha256 `2331a7a7f9de9f86ecce71dbc2e076b548dacea73e787410662fb6ce3806688e`)
+   (debug-4: `…/releases/download/debug-4/selfdebug.apk`, 1,544,511 bytes,
+   sha256 `ca3972a1634cc67a61936f331167386c6a6d02ca805a975188942ad611d730f2`)
 2. Open it once (it will ask to check for updates; that is fine).
 3. In Pechka, approve `dev.pechka.selfdebug` and pin this signing certificate SHA-256:
 
@@ -79,4 +79,6 @@ tools refuse binary. So the workflow publishes its own failure summary:
   signal that a usable APK exists.
 
 Polling those two raw URLs (`raw.githubusercontent.com/.../build-error.txt` and
-`.../app/update/version.json`) is cheap and needs no API token.
+`.../app/update/version.json`) is cheap and needs no API token. Careful: raw.githubusercontent
+caches for about five minutes, so a manifest written by a run that just finished can still read as
+the previous version (or a 404). The contents API is authoritative; `pull` is cheapest.
