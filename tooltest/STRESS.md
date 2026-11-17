@@ -492,3 +492,19 @@ projects), and the app will not send it anywhere else." Good guardrail, clear me
 - With 64 matching lines a single 200 kB patch can produce a ~12.8 MB file. There is no size check
   on the written file itself.
 
+## S34. Browser sessions do not like being created together
+
+Three sessions opened in one response (`b1`, `b2`, `b3` against three small local files): `b1` and
+`b3` loaded, `b2` answered "The page did not finish loading before the timeout", and a later `read`
+of `b2` said "Session `b2` has no loaded page yet; pass `url` to open one." So the session exists but
+the navigation was lost. Open sessions one at a time, and treat a timeout as "this session has no
+page" rather than "this page is slow".
+
+## S35. No Unicode normalisation in matching
+
+- File written with `caf\u00e9` (NFC). An `original` given as `cafe\u0301` (NFD) → **1** "nothing
+  matches". The reverse (NFD file, NFC original) also fails.
+- `write original`/`edits` and `read grep` compare code points exactly. Text copied from a phone
+  keyboard, a Mac file name or a normalising editor can look identical and still not match. Compare
+  on a distinctive ASCII anchor, or replace by line range.
+
