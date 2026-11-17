@@ -358,3 +358,16 @@ non-numeric cell; `http` non-http URL; `browse` `action:"eval"`, `open` outside 
 - `background action:"cancel"` on an unknown/finished job → **1** "That job is not cancellable or
   not running in this session; its outcome may be unknown."
 - `browse` `wait:"idle"` and `wait:"dom"` accepted; the answer names the saved page text.
+
+## 27. whole-project `restore` rewinds the branch (important)
+
+- `restore {"revision":"fc196d9"}` with **no `path`** answered
+  "put the whole project back to fc196d9 — the stage was cleared".
+- After it, `log` showed `fc196d9` as the newest commit: the branch tip had moved back and the
+  two later commits (`0acea70`, `d05e090`) were no longer on `main`. Files added by those commits
+  were gone and `status` was clean — it is a hard reset of the branch, not a staged change.
+- `pull` from origin restored everything (`Brought in 36 path(s)`, HEAD back at `d05e090`, clean
+  tree). The 36 paths listed included the deletions, so the count is "changed paths", not "added".
+- Practical rule: whole-project restore is destructive to unpushed commits; single-path restore
+  only touches that file and leaves the change staged. Both differ from the documented `keep`
+  behaviour noted in section 20.
