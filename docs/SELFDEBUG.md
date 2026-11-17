@@ -64,3 +64,17 @@ change that. If this app ever matters beyond testing, move the keystore into an 
 gh workflow run android.yml          # manual
 # or: commit anything under app/ and push
 ```
+
+## Debugging the build from here
+
+The agent cannot read Actions logs directly: the log zip contains ANSI control bytes, and the text
+tools refuse binary. So the workflow publishes its own failure summary:
+
+- `build.log` (full, plain console) is kept in the run workspace only.
+- On failure the workflow strips ANSI, greps the interesting lines and commits `build-error.txt` to
+  the repo. That file is plain text and readable with `read`.
+- On success it commits `app/update/version.json` (with `sha256` and `certSha256`), which is the
+  signal that a usable APK exists.
+
+Polling those two raw URLs (`raw.githubusercontent.com/.../build-error.txt` and
+`.../app/update/version.json`) is cheap and needs no API token.
