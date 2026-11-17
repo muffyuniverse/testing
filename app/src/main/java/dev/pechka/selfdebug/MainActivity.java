@@ -26,10 +26,19 @@ public class MainActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(pad, pad, pad, pad);
 
+        android.content.SharedPreferences sp = getSharedPreferences("self", MODE_PRIVATE);
+        int opens = sp.getInt("opens", 0) + 1;
+        sp.edit().putInt("opens", opens).apply();
+
         TextView title = new TextView(this);
         title.setText("Self Debug " + BuildConfig.VERSION_NAME + " (" + BuildConfig.VERSION_CODE + ")");
         title.setTextSize(20);
         root.addView(title);
+
+        TextView sub = new TextView(this);
+        sub.setText("opened " + opens + "x · pid " + android.os.Process.myPid());
+        sub.setTextSize(11);
+        root.addView(sub);
 
         status = new TextView(this);
         status.setText("idle");
