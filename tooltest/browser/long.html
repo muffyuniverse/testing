@@ -1,0 +1,13 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Long page</title></head>
+<body>
+<h1>Long page</h1>
+<div id="host"></div>
+<p id="bottom">bottom marker</p>
+<script>
+  const host = document.getElementById('host');
+  let html = '';
+  for (let i = 0; i < 5000; i++) html += '<div>row ' + i + '</div>';
+  host.innerHTML = html;
+</script>
+</body></html>

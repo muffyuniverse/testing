@@ -1,0 +1,894 @@
+# Page: React Repository Overview
+
+# React Repository Overview
+
+<details>
+<summary>Relevant source files</summary>
+
+The following files were used as context for generating this wiki page:
+
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- [README.md](README.md)
+- [package.json](package.json)
+- [packages/eslint-plugin-react-hooks/package.json](packages/eslint-plugin-react-hooks/package.json)
+- [packages/jest-react/package.json](packages/jest-react/package.json)
+- [packages/react-art/package.json](packages/react-art/package.json)
+- [packages/react-devtools-shared/package.json](packages/react-devtools-shared/package.json)
+- [packages/react-dom/package.json](packages/react-dom/package.json)
+- [packages/react-is/package.json](packages/react-is/package.json)
+- [packages/react-reconciler/package.json](packages/react-reconciler/package.json)
+- [packages/react-reconciler/src/__tests__/ActivityReactServer-test.js](packages/react-reconciler/src/__tests__/ActivityReactServer-test.js)
+- [packages/react-test-renderer/package.json](packages/react-test-renderer/package.json)
+- [packages/react/index.development.js](packages/react/index.development.js)
+- [packages/react/index.experimental.development.js](packages/react/index.experimental.development.js)
+- [packages/react/index.experimental.js](packages/react/index.experimental.js)
+- [packages/react/index.fb.js](packages/react/index.fb.js)
+- [packages/react/index.js](packages/react/index.js)
+- [packages/react/index.stable.development.js](packages/react/index.stable.development.js)
+- [packages/react/index.stable.js](packages/react/index.stable.js)
+- [packages/react/package.json](packages/react/package.json)
+- [packages/react/src/ReactClient.js](packages/react/src/ReactClient.js)
+- [packages/react/src/ReactServer.experimental.development.js](packages/react/src/ReactServer.experimental.development.js)
+- [packages/react/src/ReactServer.experimental.js](packages/react/src/ReactServer.experimental.js)
+- [packages/react/src/ReactServer.fb.js](packages/react/src/ReactServer.fb.js)
+- [packages/react/src/ReactServer.js](packages/react/src/ReactServer.js)
+- [packages/scheduler/package.json](packages/scheduler/package.json)
+- [packages/shared/ReactVersion.js](packages/shared/ReactVersion.js)
+- [scripts/flow/config/flowconfig](scripts/flow/config/flowconfig)
+- [scripts/flow/createFlowConfigs.js](scripts/flow/createFlowConfigs.js)
+- [scripts/jest/config.base.js](scripts/jest/config.base.js)
+- [scripts/jest/sizeBalancedSequencer.js](scripts/jest/sizeBalancedSequencer.js)
+- [yarn.lock](yarn.lock)
+
+</details>
+
+
+
+This page provides a high-level introduction to the React monorepo, covering its purpose, major subsystems, package structure, and how the component pieces fit together. It serves as a parent overview linking to detailed child pages for in-depth understanding.
+
+## Purpose and Scope
+
+The React repository houses the core React library, multiple platform-specific renderers, compiler tooling, developer utilities, and the build/test infrastructure in a unified monorepo managed by Yarn workspaces. This unified setup enables coordinated development, consistent dependency management, and streamlined releases of React’s diverse components.
+
+For detailed breakdowns of the monorepo layout and React’s feature flags system, please refer to the child pages [Repository Structure and Packages](#1.1) and [Feature Flags System](#1.2).
+
+Sources: [package.json:1-5](), [README.md:1-8]()
+
+## Major Subsystems and Packages
+
+The monorepo is composed of several major subsystems organized mainly under the `packages/` directory and other top-level folders:
+
+- **Core React Packages**  
+  - `packages/react`: Exposes the primary React public API including hooks, JSX runtimes, and core React abstractions.  
+  - `packages/react-reconciler`: Implements the Fiber reconciler core logic responsible for reconciliation, update scheduling, and coordination with renderers.  
+  - `packages/scheduler`: Provides the prioritized task scheduling infrastructure React uses internally to schedule updates efficiently.
+
+- **Rendering Targets**  
+  Platform-specific renderers bind the reconciler to concrete environments:  
+  - `packages/react-dom`: Implements rendering for the web DOM platform supporting client and server modes.  
+  - `packages/react-test-renderer`: Offers a renderer for snapshot testing React component trees.  
+  - `packages/react-art`: Supports vector graphics rendering using the ART library for Canvas, SVG, and VML.
+
+- **React Compiler**  
+  Housed in the `compiler/` sub-monorepo, this codebase enables static analysis and build-time transformations such as automatic memoization to optimize React components.
+
+- **Developer Tools**  
+  DevTools packages provide runtime inspection, profiling, and debugging capabilities to developers through browser extensions, standalone apps, and inline embed APIs.
+
+- **Build System and Tooling**  
+  The `scripts/` folder contains build pipelines (Rollup-based), test runners (Jest configurations), lint rules, and release orchestration scripts to support monorepo development and publishing.
+
+```mermaid
+title "React Core Packages Dependency Graph"
+graph TD
+  react["packages/react"]
+  reactReconciler["packages/react-reconciler"]
+  scheduler["packages/scheduler"]
+  reactDom["packages/react-dom"]
+  reactTestRenderer["packages/react-test-renderer"]
+  reactArt["packages/react-art"]
+  reactIs["packages/react-is"]
+
+  reactDom --> react
+  reactDom --> scheduler
+  reactTestRenderer --> react
+  reactTestRenderer --> scheduler
+  reactTestRenderer --> reactIs
+  reactArt --> react
+  reactArt --> scheduler
+  reactReconciler --> react
+  reactReconciler --> scheduler
+```
+
+Sources: [packages/react/package.json:1-52](), [packages/react-dom/package.json:19-24](), [packages/react-reconciler/package.json:28-33](), [packages/react-test-renderer/package.json:21-27](), [packages/react-art/package.json:24-31](), [packages/react-is/package.json:1-26]()
+
+## Repository Structure and Packages
+
+The React repository is managed using Yarn Workspaces to enable efficient dependency sharing and versioning across packages. The root `package.json` declares `"packages/*"` as the workspace pattern, which includes all published React packages [package.json:1-5]().
+
+Top-level directories include:
+
+- `packages/`  
+  Contains React's published packages including the core React API, renderers, reconciler, scheduler, and various utilities.
+
+- `compiler/`  
+  The React Compiler sub-monorepo responsible for advanced static analyses and code transformations performed at build time to optimize React components.
+
+- `fixtures/`  
+  Includes integration examples, demos, standalone apps, and test fixtures illustrating React’s capabilities.
+
+- `scripts/`  
+  Contains build, test, lint, release, and other workflow automation scripts critical to the monorepo development lifecycle.
+
+For an exhaustive layout and inter-package relationships, see [Repository Structure and Packages](#1.1).
+
+Sources: [package.json:1-5](), [package.json:124-145]()
+
+## Feature Flags System
+
+React includes an elaborate feature flag system enabling controlled feature experiments, compatibility with multiple deployment environments, and fine-grained feature rollouts.
+
+The system differentiates between:
+
+- **Static Flags:** These are resolved at build time, producing different bundle variants for open source, Facebook’s internal platform (`www`), native Facebook apps (`native-fb`), and specialized test renderers.
+
+- **Dynamic Flags:** These can be configured at runtime, allowing selective feature gating without rebuilds.
+
+Integration with Facebook's Gatekeeper system and a build forking mechanism allows safe experimentation and deployment of features across React’s broad usage scenarios.
+
+For full details on the fork mechanism, static vs dynamic flags, and Gatekeeper integration, see [Feature Flags System](#1.2).
+
+Sources: [packages/shared/ReactVersion.js:15-15](), [package.json:140-142]()
+
+## How the Pieces Fit Together
+
+The React monorepo architecture is designed for modular separation of concerns and logical layering across code subsystems:
+
+```mermaid
+title "React Monorepo Architecture and Code Entit
+… (669502 chars; full output at agent/mcp/deepwiki-read_wiki_contents-1794930678100.txt)
+# Page: React Repository Overview
+
+# React Repository Overview
+
+<details>
+<summary>Relevant source files</summary>
+
+The following files were used as context for generating this wiki page:
+
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- [README.md](README.md)
+- [package.json](package.json)
+- [packages/eslint-plugin-react-hooks/package.json](packages/eslint-plugin-react-hooks/package.json)
+- [packages/jest-react/package.json](packages/jest-react/package.json)
+- [packages/react-art/package.json](packages/react-art/package.json)
+- [packages/react-devtools-shared/package.json](packages/react-devtools-shared/package.json)
+- [packages/react-dom/package.json](packages/react-dom/package.json)
+- [packages/react-is/package.json](packages/react-is/package.json)
+- [packages/react-reconciler/package.json](packages/react-reconciler/package.json)
+- [packages/react-reconciler/src/__tests__/ActivityReactServer-test.js](packages/react-reconciler/src/__tests__/ActivityReactServer-test.js)
+- [packages/react-test-renderer/package.json](packages/react-test-renderer/package.json)
+- [packages/react/index.development.js](packages/react/index.development.js)
+- [packages/react/index.experimental.development.js](packages/react/index.experimental.development.js)
+- [packages/react/index.experimental.js](packages/react/index.experimental.js)
+- [packages/react/index.fb.js](packages/react/index.fb.js)
+- [packages/react/index.js](packages/react/index.js)
+- [packages/react/index.stable.development.js](packages/react/index.stable.development.js)
+- [packages/react/index.stable.js](packages/react/index.stable.js)
+- [packages/react/package.json](packages/react/package.json)
+- [packages/react/src/ReactClient.js](packages/react/src/ReactClient.js)
+- [packages/react/src/ReactServer.experimental.development.js](packages/react/src/ReactServer.experimental.development.js)
+- [packages/react/src/ReactServer.experimental.js](packages/react/src/ReactServer.experimental.js)
+- [packages/react/src/ReactServer.fb.js](packages/react/src/ReactServer.fb.js)
+- [packages/react/src/ReactServer.js](packages/react/src/ReactServer.js)
+- [packages/scheduler/package.json](packages/scheduler/package.json)
+- [packages/shared/ReactVersion.js](packages/shared/ReactVersion.js)
+- [scripts/flow/config/flowconfig](scripts/flow/config/flowconfig)
+- [scripts/flow/createFlowConfigs.js](scripts/flow/createFlowConfigs.js)
+- [scripts/jest/config.base.js](scripts/jest/config.base.js)
+- [scripts/jest/sizeBalancedSequencer.js](scripts/jest/sizeBalancedSequencer.js)
+- [yarn.lock](yarn.lock)
+
+</details>
+
+
+
+This page provides a high-level introduction to the React monorepo, covering its purpose, major subsystems, package structure, and how the component pieces fit together. It serves as a parent overview linking to detailed child pages for in-depth understanding.
+
+## Purpose and Scope
+
+The React repository houses the core React library, multiple platform-specific renderers, compiler tooling, developer utilities, and the build/test infrastructure in a unified monorepo managed by Yarn workspaces. This unified setup enables coordinated development, consistent dependency management, and streamlined releases of React’s diverse components.
+
+For detailed breakdowns of the monorepo layout and React’s feature flags system, please refer to the child pages [Repository Structure and Packages](#1.1) and [Feature Flags System](#1.2).
+
+Sources: [package.json:1-5](), [README.md:1-8]()
+
+## Major Subsystems and Packages
+
+The monorepo is composed of several major subsystems organized mainly under the `packages/` directory and other top-level folders:
+
+- **Core React Packages**  
+  - `packages/react`: Exposes the primary React public API including hooks, JSX runtimes, and core React abstractions.  
+  - `packages/react-reconciler`: Implements the Fiber reconciler core logic responsible for reconciliation, update scheduling, and coordination with renderers.  
+  - `packages/scheduler`: Provides the prioritized task scheduling infrastructure React uses internally to schedule updates efficiently.
+
+- **Rendering Targets**  
+  Platform-specific renderers bind the reconciler to concrete environments:  
+  - `packages/react-dom`: Implements rendering for the web DOM platform supporting client and server modes.  
+  - `packages/react-test-renderer`: Offers a renderer for snapshot testing React component trees.  
+  - `packages/react-art`: Supports vector graphics rendering using the ART library for Canvas, SVG, and VML.
+
+- **React Compiler**  
+  Housed in the `compiler/` sub-monorepo, this codebase enables static analysis and build-time transformations such as automatic memoization to optimize React components.
+
+- **Developer Tools**  
+  DevTools packages provide runtime inspection, profiling, and debugging capabilities to developers through browser extensions, standalone apps, and inline embed APIs.
+
+- **Build System and Tooling**  
+  The `scripts/` folder contains build pipelines (Rollup-based), test runners (Jest configurations), lint rules, and release orchestration scripts to support monorepo development and publishing.
+
+```mermaid
+title "React Core Packages Dependency Graph"
+graph TD
+  react["packages/react"]
+  reactReconciler["packages/react-reconciler"]
+  scheduler["packages/scheduler"]
+  reactDom["packages/react-dom"]
+  reactTestRenderer["packages/react-test-renderer"]
+  reactArt["packages/react-art"]
+  reactIs["packages/react-is"]
+
+  reactDom --> react
+  reactDom --> scheduler
+  reactTestRenderer --> react
+  reactTestRenderer --> scheduler
+  reactTestRenderer --> reactIs
+  reactArt --> react
+  reactArt --> scheduler
+  reactReconciler --> react
+  reactReconciler --> scheduler
+```
+
+Sources: [packages/react/package.json:1-52](), [packages/react-dom/package.json:19-24](), [packages/react-reconciler/package.json:28-33](), [packages/react-test-renderer/package.json:21-27](), [packages/react-art/package.json:24-31](), [packages/react-is/package.json:1-26]()
+
+## Repository Structure and Packages
+
+The React repository is managed using Yarn Workspaces to enable efficient dependency sharing and versioning across packages. The root `package.json` declares `"packages/*"` as the workspace pattern, which includes all published React packages [package.json:1-5]().
+
+Top-level directories include:
+
+- `packages/`  
+  Contains React's published packages including the core React API, renderers, reconciler, scheduler, and various utilities.
+
+- `compiler/`  
+  The React Compiler sub-monorepo responsible for advanced static analyses and code transformations performed at build time to optimize React components.
+
+- `fixtures/`  
+  Includes integration examples, demos, standalone apps, and test fixtures illustrating React’s capabilities.
+
+- `scripts/`  
+  Contains build, test, lint, release, and other workflow automation scripts critical to the monorepo development lifecycle.
+
+For an exhaustive layout and inter-package relationships, see [Repository Structure and Packages](#1.1).
+
+Sources: [package.json:1-5](), [package.json:124-145]()
+
+## Feature Flags System
+
+React includes an elaborate feature flag system enabling controlled feature experiments, compatibility with multiple deployment environments, and fine-grained feature rollouts.
+
+The system differentiates between:
+
+- **Static Flags:** These are resolved at build time, producing different bundle variants for open source, Facebook’s internal platform (`www`), native Facebook apps (`native-fb`), and specialized test renderers.
+
+- **Dynamic Flags:** These can be configured at runtime, allowing selective feature gating without rebuilds.
+
+Integration with Facebook's Gatekeeper system and a build forking mechanism allows safe experimentation and deployment of features across React’s broad usage scenarios.
+
+For full details on the fork mechanism, static vs dynamic flags, and Gatekeeper integration, see [Feature Flags System](#1.2).
+
+Sources: [packages/shared/ReactVersion.js:15-15](), [package.json:140-142]()
+
+## How the Pieces Fit Together
+
+The React monorepo architecture is designed for modular separation of concerns and logical layering across code subsystems:
+
+```mermaid
+title "React Monorepo Architecture and Code Entit
+… (669502 chars; full output at agent/mcp/deepwiki-read_wiki_contents-1794930678100.txt)
+# Page: React Repository Overview
+
+# React Repository Overview
+
+<details>
+<summary>Relevant source files</summary>
+
+The following files were used as context for generating this wiki page:
+
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- [README.md](README.md)
+- [package.json](package.json)
+- [packages/eslint-plugin-react-hooks/package.json](packages/eslint-plugin-react-hooks/package.json)
+- [packages/jest-react/package.json](packages/jest-react/package.json)
+- [packages/react-art/package.json](packages/react-art/package.json)
+- [packages/react-devtools-shared/package.json](packages/react-devtools-shared/package.json)
+- [packages/react-dom/package.json](packages/react-dom/package.json)
+- [packages/react-is/package.json](packages/react-is/package.json)
+- [packages/react-reconciler/package.json](packages/react-reconciler/package.json)
+- [packages/react-reconciler/src/__tests__/ActivityReactServer-test.js](packages/react-reconciler/src/__tests__/ActivityReactServer-test.js)
+- [packages/react-test-renderer/package.json](packages/react-test-renderer/package.json)
+- [packages/react/index.development.js](packages/react/index.development.js)
+- [packages/react/index.experimental.development.js](packages/react/index.experimental.development.js)
+- [packages/react/index.experimental.js](packages/react/index.experimental.js)
+- [packages/react/index.fb.js](packages/react/index.fb.js)
+- [packages/react/index.js](packages/react/index.js)
+- [packages/react/index.stable.development.js](packages/react/index.stable.development.js)
+- [packages/react/index.stable.js](packages/react/index.stable.js)
+- [packages/react/package.json](packages/react/package.json)
+- [packages/react/src/ReactClient.js](packages/react/src/ReactClient.js)
+- [packages/react/src/ReactServer.experimental.development.js](packages/react/src/ReactServer.experimental.development.js)
+- [packages/react/src/ReactServer.experimental.js](packages/react/src/ReactServer.experimental.js)
+- [packages/react/src/ReactServer.fb.js](packages/react/src/ReactServer.fb.js)
+- [packages/react/src/ReactServer.js](packages/react/src/ReactServer.js)
+- [packages/scheduler/package.json](packages/scheduler/package.json)
+- [packages/shared/ReactVersion.js](packages/shared/ReactVersion.js)
+- [scripts/flow/config/flowconfig](scripts/flow/config/flowconfig)
+- [scripts/flow/createFlowConfigs.js](scripts/flow/createFlowConfigs.js)
+- [scripts/jest/config.base.js](scripts/jest/config.base.js)
+- [scripts/jest/sizeBalancedSequencer.js](scripts/jest/sizeBalancedSequencer.js)
+- [yarn.lock](yarn.lock)
+
+</details>
+
+
+
+This page provides a high-level introduction to the React monorepo, covering its purpose, major subsystems, package structure, and how the component pieces fit together. It serves as a parent overview linking to detailed child pages for in-depth understanding.
+
+## Purpose and Scope
+
+The React repository houses the core React library, multiple platform-specific renderers, compiler tooling, developer utilities, and the build/test infrastructure in a unified monorepo managed by Yarn workspaces. This unified setup enables coordinated development, consistent dependency management, and streamlined releases of React’s diverse components.
+
+For detailed breakdowns of the monorepo layout and React’s feature flags system, please refer to the child pages [Repository Structure and Packages](#1.1) and [Feature Flags System](#1.2).
+
+Sources: [package.json:1-5](), [README.md:1-8]()
+
+## Major Subsystems and Packages
+
+The monorepo is composed of several major subsystems organized mainly under the `packages/` directory and other top-level folders:
+
+- **Core React Packages**  
+  - `packages/react`: Exposes the primary React public API including hooks, JSX runtimes, and core React abstractions.  
+  - `packages/react-reconciler`: Implements the Fiber reconciler core logic responsible for reconciliation, update scheduling, and coordination with renderers.  
+  - `packages/scheduler`: Provides the prioritized task scheduling infrastructure React uses internally to schedule updates efficiently.
+
+- **Rendering Targets**  
+  Platform-specific renderers bind the reconciler to concrete environments:  
+  - `packages/react-dom`: Implements rendering for the web DOM platform supporting client and server modes.  
+  - `packages/react-test-renderer`: Offers a renderer for snapshot testing React component trees.  
+  - `packages/react-art`: Supports vector graphics rendering using the ART library for Canvas, SVG, and VML.
+
+- **React Compiler**  
+  Housed in the `compiler/` sub-monorepo, this codebase enables static analysis and build-time transformations such as automatic memoization to optimize React components.
+
+- **Developer Tools**  
+  DevTools packages provide runtime inspection, profiling, and debugging capabilities to developers through browser extensions, standalone apps, and inline embed APIs.
+
+- **Build System and Tooling**  
+  The `scripts/` folder contains build pipelines (Rollup-based), test runners (Jest configurations), lint rules, and release orchestration scripts to support monorepo development and publishing.
+
+```mermaid
+title "React Core Packages Dependency Graph"
+graph TD
+  react["packages/react"]
+  reactReconciler["packages/react-reconciler"]
+  scheduler["packages/scheduler"]
+  reactDom["packages/react-dom"]
+  reactTestRenderer["packages/react-test-renderer"]
+  reactArt["packages/react-art"]
+  reactIs["packages/react-is"]
+
+  reactDom --> react
+  reactDom --> scheduler
+  reactTestRenderer --> react
+  reactTestRenderer --> scheduler
+  reactTestRenderer --> reactIs
+  reactArt --> react
+  reactArt --> scheduler
+  reactReconciler --> react
+  reactReconciler --> scheduler
+```
+
+Sources: [packages/react/package.json:1-52](), [packages/react-dom/package.json:19-24](), [packages/react-reconciler/package.json:28-33](), [packages/react-test-renderer/package.json:21-27](), [packages/react-art/package.json:24-31](), [packages/react-is/package.json:1-26]()
+
+## Repository Structure and Packages
+
+The React repository is managed using Yarn Workspaces to enable efficient dependency sharing and versioning across packages. The root `package.json` declares `"packages/*"` as the workspace pattern, which includes all published React packages [package.json:1-5]().
+
+Top-level directories include:
+
+- `packages/`  
+  Contains React's published packages including the core React API, renderers, reconciler, scheduler, and various utilities.
+
+- `compiler/`  
+  The React Compiler sub-monorepo responsible for advanced static analyses and code transformations performed at build time to optimize React components.
+
+- `fixtures/`  
+  Includes integration examples, demos, standalone apps, and test fixtures illustrating React’s capabilities.
+
+- `scripts/`  
+  Contains build, test, lint, release, and other workflow automation scripts critical to the monorepo development lifecycle.
+
+For an exhaustive layout and inter-package relationships, see [Repository Structure and Packages](#1.1).
+
+Sources: [package.json:1-5](), [package.json:124-145]()
+
+## Feature Flags System
+
+React includes an elaborate feature flag system enabling controlled feature experiments, compatibility with multiple deployment environments, and fine-grained feature rollouts.
+
+The system differentiates between:
+
+- **Static Flags:** These are resolved at build time, producing different bundle variants for open source, Facebook’s internal platform (`www`), native Facebook apps (`native-fb`), and specialized test renderers.
+
+- **Dynamic Flags:** These can be configured at runtime, allowing selective feature gating without rebuilds.
+
+Integration with Facebook's Gatekeeper system and a build forking mechanism allows safe experimentation and deployment of features across React’s broad usage scenarios.
+
+For full details on the fork mechanism, static vs dynamic flags, and Gatekeeper integration, see [Feature Flags System](#1.2).
+
+Sources: [packages/shared/ReactVersion.js:15-15](), [package.json:140-142]()
+
+## How the Pieces Fit Together
+
+The React monorepo architecture is designed for modular separation of concerns and logical layering across code subsystems:
+
+```mermaid
+title "React Monorepo Architecture and Code Entit
+… (669502 chars; full output at agent/mcp/deepwiki-read_wiki_contents-1794930678100.txt)
+# Page: React Repository Overview
+
+# React Repository Overview
+
+<details>
+<summary>Relevant source files</summary>
+
+The following files were used as context for generating this wiki page:
+
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- [README.md](README.md)
+- [package.json](package.json)
+- [packages/eslint-plugin-react-hooks/package.json](packages/eslint-plugin-react-hooks/package.json)
+- [packages/jest-react/package.json](packages/jest-react/package.json)
+- [packages/react-art/package.json](packages/react-art/package.json)
+- [packages/react-devtools-shared/package.json](packages/react-devtools-shared/package.json)
+- [packages/react-dom/package.json](packages/react-dom/package.json)
+- [packages/react-is/package.json](packages/react-is/package.json)
+- [packages/react-reconciler/package.json](packages/react-reconciler/package.json)
+- [packages/react-reconciler/src/__tests__/ActivityReactServer-test.js](packages/react-reconciler/src/__tests__/ActivityReactServer-test.js)
+- [packages/react-test-renderer/package.json](packages/react-test-renderer/package.json)
+- [packages/react/index.development.js](packages/react/index.development.js)
+- [packages/react/index.experimental.development.js](packages/react/index.experimental.development.js)
+- [packages/react/index.experimental.js](packages/react/index.experimental.js)
+- [packages/react/index.fb.js](packages/react/index.fb.js)
+- [packages/react/index.js](packages/react/index.js)
+- [packages/react/index.stable.development.js](packages/react/index.stable.development.js)
+- [packages/react/index.stable.js](packages/react/index.stable.js)
+- [packages/react/package.json](packages/react/package.json)
+- [packages/react/src/ReactClient.js](packages/react/src/ReactClient.js)
+- [packages/react/src/ReactServer.experimental.development.js](packages/react/src/ReactServer.experimental.development.js)
+- [packages/react/src/ReactServer.experimental.js](packages/react/src/ReactServer.experimental.js)
+- [packages/react/src/ReactServer.fb.js](packages/react/src/ReactServer.fb.js)
+- [packages/react/src/ReactServer.js](packages/react/src/ReactServer.js)
+- [packages/scheduler/package.json](packages/scheduler/package.json)
+- [packages/shared/ReactVersion.js](packages/shared/ReactVersion.js)
+- [scripts/flow/config/flowconfig](scripts/flow/config/flowconfig)
+- [scripts/flow/createFlowConfigs.js](scripts/flow/createFlowConfigs.js)
+- [scripts/jest/config.base.js](scripts/jest/config.base.js)
+- [scripts/jest/sizeBalancedSequencer.js](scripts/jest/sizeBalancedSequencer.js)
+- [yarn.lock](yarn.lock)
+
+</details>
+
+
+
+This page provides a high-level introduction to the React monorepo, covering its purpose, major subsystems, package structure, and how the component pieces fit together. It serves as a parent overview linking to detailed child pages for in-depth understanding.
+
+## Purpose and Scope
+
+The React repository houses the core React library, multiple platform-specific renderers, compiler tooling, developer utilities, and the build/test infrastructure in a unified monorepo managed by Yarn workspaces. This unified setup enables coordinated development, consistent dependency management, and streamlined releases of React’s diverse components.
+
+For detailed breakdowns of the monorepo layout and React’s feature flags system, please refer to the child pages [Repository Structure and Packages](#1.1) and [Feature Flags System](#1.2).
+
+Sources: [package.json:1-5](), [README.md:1-8]()
+
+## Major Subsystems and Packages
+
+The monorepo is composed of several major subsystems organized mainly under the `packages/` directory and other top-level folders:
+
+- **Core React Packages**  
+  - `packages/react`: Exposes the primary React public API including hooks, JSX runtimes, and core React abstractions.  
+  - `packages/react-reconciler`: Implements the Fiber reconciler core logic responsible for reconciliation, update scheduling, and coordination with renderers.  
+  - `packages/scheduler`: Provides the prioritized task scheduling infrastructure React uses internally to schedule updates efficiently.
+
+- **Rendering Targets**  
+  Platform-specific renderers bind the reconciler to concrete environments:  
+  - `packages/react-dom`: Implements rendering for the web DOM platform supporting client and server modes.  
+  - `packages/react-test-renderer`: Offers a renderer for snapshot testing React component trees.  
+  - `packages/react-art`: Supports vector graphics rendering using the ART library for Canvas, SVG, and VML.
+
+- **React Compiler**  
+  Housed in the `compiler/` sub-monorepo, this codebase enables static analysis and build-time transformations such as automatic memoization to optimize React components.
+
+- **Developer Tools**  
+  DevTools packages provide runtime inspection, profiling, and debugging capabilities to developers through browser extensions, standalone apps, and inline embed APIs.
+
+- **Build System and Tooling**  
+  The `scripts/` folder contains build pipelines (Rollup-based), test runners (Jest configurations), lint rules, and release orchestration scripts to support monorepo development and publishing.
+
+```mermaid
+title "React Core Packages Dependency Graph"
+graph TD
+  react["packages/react"]
+  reactReconciler["packages/react-reconciler"]
+  scheduler["packages/scheduler"]
+  reactDom["packages/react-dom"]
+  reactTestRenderer["packages/react-test-renderer"]
+  reactArt["packages/react-art"]
+  reactIs["packages/react-is"]
+
+  reactDom --> react
+  reactDom --> scheduler
+  reactTestRenderer --> react
+  reactTestRenderer --> scheduler
+  reactTestRenderer --> reactIs
+  reactArt --> react
+  reactArt --> scheduler
+  reactReconciler --> react
+  reactReconciler --> scheduler
+```
+
+Sources: [packages/react/package.json:1-52](), [packages/react-dom/package.json:19-24](), [packages/react-reconciler/package.json:28-33](), [packages/react-test-renderer/package.json:21-27](), [packages/react-art/package.json:24-31](), [packages/react-is/package.json:1-26]()
+
+## Repository Structure and Packages
+
+The React repository is managed using Yarn Workspaces to enable efficient dependency sharing and versioning across packages. The root `package.json` declares `"packages/*"` as the workspace pattern, which includes all published React packages [package.json:1-5]().
+
+Top-level directories include:
+
+- `packages/`  
+  Contains React's published packages including the core React API, renderers, reconciler, scheduler, and various utilities.
+
+- `compiler/`  
+  The React Compiler sub-monorepo responsible for advanced static analyses and code transformations performed at build time to optimize React components.
+
+- `fixtures/`  
+  Includes integration examples, demos, standalone apps, and test fixtures illustrating React’s capabilities.
+
+- `scripts/`  
+  Contains build, test, lint, release, and other workflow automation scripts critical to the monorepo development lifecycle.
+
+For an exhaustive layout and inter-package relationships, see [Repository Structure and Packages](#1.1).
+
+Sources: [package.json:1-5](), [package.json:124-145]()
+
+## Feature Flags System
+
+React includes an elaborate feature flag system enabling controlled feature experiments, compatibility with multiple deployment environments, and fine-grained feature rollouts.
+
+The system differentiates between:
+
+- **Static Flags:** These are resolved at build time, producing different bundle variants for open source, Facebook’s internal platform (`www`), native Facebook apps (`native-fb`), and specialized test renderers.
+
+- **Dynamic Flags:** These can be configured at runtime, allowing selective feature gating without rebuilds.
+
+Integration with Facebook's Gatekeeper system and a build forking mechanism allows safe experimentation and deployment of features across React’s broad usage scenarios.
+
+For full details on the fork mechanism, static vs dynamic flags, and Gatekeeper integration, see [Feature Flags System](#1.2).
+
+Sources: [packages/shared/ReactVersion.js:15-15](), [package.json:140-142]()
+
+## How the Pieces Fit Together
+
+The React monorepo architecture is designed for modular separation of concerns and logical layering across code subsystems:
+
+```mermaid
+title "React Monorepo Architecture and Code Entit
+… (669502 chars; full output at agent/mcp/deepwiki-read_wiki_contents-1794930678100.txt)
+# Page: React Repository Overview
+
+# React Repository Overview
+
+<details>
+<summary>Relevant source files</summary>
+
+The following files were used as context for generating this wiki page:
+
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- [README.md](README.md)
+- [package.json](package.json)
+- [packages/eslint-plugin-react-hooks/package.json](packages/eslint-plugin-react-hooks/package.json)
+- [packages/jest-react/package.json](packages/jest-react/package.json)
+- [packages/react-art/package.json](packages/react-art/package.json)
+- [packages/react-devtools-shared/package.json](packages/react-devtools-shared/package.json)
+- [packages/react-dom/package.json](packages/react-dom/package.json)
+- [packages/react-is/package.json](packages/react-is/package.json)
+- [packages/react-reconciler/package.json](packages/react-reconciler/package.json)
+- [packages/react-reconciler/src/__tests__/ActivityReactServer-test.js](packages/react-reconciler/src/__tests__/ActivityReactServer-test.js)
+- [packages/react-test-renderer/package.json](packages/react-test-renderer/package.json)
+- [packages/react/index.development.js](packages/react/index.development.js)
+- [packages/react/index.experimental.development.js](packages/react/index.experimental.development.js)
+- [packages/react/index.experimental.js](packages/react/index.experimental.js)
+- [packages/react/index.fb.js](packages/react/index.fb.js)
+- [packages/react/index.js](packages/react/index.js)
+- [packages/react/index.stable.development.js](packages/react/index.stable.development.js)
+- [packages/react/index.stable.js](packages/react/index.stable.js)
+- [packages/react/package.json](packages/react/package.json)
+- [packages/react/src/ReactClient.js](packages/react/src/ReactClient.js)
+- [packages/react/src/ReactServer.experimental.development.js](packages/react/src/ReactServer.experimental.development.js)
+- [packages/react/src/ReactServer.experimental.js](packages/react/src/ReactServer.experimental.js)
+- [packages/react/src/ReactServer.fb.js](packages/react/src/ReactServer.fb.js)
+- [packages/react/src/ReactServer.js](packages/react/src/ReactServer.js)
+- [packages/scheduler/package.json](packages/scheduler/package.json)
+- [packages/shared/ReactVersion.js](packages/shared/ReactVersion.js)
+- [scripts/flow/config/flowconfig](scripts/flow/config/flowconfig)
+- [scripts/flow/createFlowConfigs.js](scripts/flow/createFlowConfigs.js)
+- [scripts/jest/config.base.js](scripts/jest/config.base.js)
+- [scripts/jest/sizeBalancedSequencer.js](scripts/jest/sizeBalancedSequencer.js)
+- [yarn.lock](yarn.lock)
+
+</details>
+
+
+
+This page provides a high-level introduction to the React monorepo, covering its purpose, major subsystems, package structure, and how the component pieces fit together. It serves as a parent overview linking to detailed child pages for in-depth understanding.
+
+## Purpose and Scope
+
+The React repository houses the core React library, multiple platform-specific renderers, compiler tooling, developer utilities, and the build/test infrastructure in a unified monorepo managed by Yarn workspaces. This unified setup enables coordinated development, consistent dependency management, and streamlined releases of React’s diverse components.
+
+For detailed breakdowns of the monorepo layout and React’s feature flags system, please refer to the child pages [Repository Structure and Packages](#1.1) and [Feature Flags System](#1.2).
+
+Sources: [package.json:1-5](), [README.md:1-8]()
+
+## Major Subsystems and Packages
+
+The monorepo is composed of several major subsystems organized mainly under the `packages/` directory and other top-level folders:
+
+- **Core React Packages**  
+  - `packages/react`: Exposes the primary React public API including hooks, JSX runtimes, and core React abstractions.  
+  - `packages/react-reconciler`: Implements the Fiber reconciler core logic responsible for reconciliation, update scheduling, and coordination with renderers.  
+  - `packages/scheduler`: Provides the prioritized task scheduling infrastructure React uses internally to schedule updates efficiently.
+
+- **Rendering Targets**  
+  Platform-specific renderers bind the reconciler to concrete environments:  
+  - `packages/react-dom`: Implements rendering for the web DOM platform supporting client and server modes.  
+  - `packages/react-test-renderer`: Offers a renderer for snapshot testing React component trees.  
+  - `packages/react-art`: Supports vector graphics rendering using the ART library for Canvas, SVG, and VML.
+
+- **React Compiler**  
+  Housed in the `compiler/` sub-monorepo, this codebase enables static analysis and build-time transformations such as automatic memoization to optimize React components.
+
+- **Developer Tools**  
+  DevTools packages provide runtime inspection, profiling, and debugging capabilities to developers through browser extensions, standalone apps, and inline embed APIs.
+
+- **Build System and Tooling**  
+  The `scripts/` folder contains build pipelines (Rollup-based), test runners (Jest configurations), lint rules, and release orchestration scripts to support monorepo development and publishing.
+
+```mermaid
+title "React Core Packages Dependency Graph"
+graph TD
+  react["packages/react"]
+  reactReconciler["packages/react-reconciler"]
+  scheduler["packages/scheduler"]
+  reactDom["packages/react-dom"]
+  reactTestRenderer["packages/react-test-renderer"]
+  reactArt["packages/react-art"]
+  reactIs["packages/react-is"]
+
+  reactDom --> react
+  reactDom --> scheduler
+  reactTestRenderer --> react
+  reactTestRenderer --> scheduler
+  reactTestRenderer --> reactIs
+  reactArt --> react
+  reactArt --> scheduler
+  reactReconciler --> react
+  reactReconciler --> scheduler
+```
+
+Sources: [packages/react/package.json:1-52](), [packages/react-dom/package.json:19-24](), [packages/react-reconciler/package.json:28-33](), [packages/react-test-renderer/package.json:21-27](), [packages/react-art/package.json:24-31](), [packages/react-is/package.json:1-26]()
+
+## Repository Structure and Packages
+
+The React repository is managed using Yarn Workspaces to enable efficient dependency sharing and versioning across packages. The root `package.json` declares `"packages/*"` as the workspace pattern, which includes all published React packages [package.json:1-5]().
+
+Top-level directories include:
+
+- `packages/`  
+  Contains React's published packages including the core React API, renderers, reconciler, scheduler, and various utilities.
+
+- `compiler/`  
+  The React Compiler sub-monorepo responsible for advanced static analyses and code transformations performed at build time to optimize React components.
+
+- `fixtures/`  
+  Includes integration examples, demos, standalone apps, and test fixtures illustrating React’s capabilities.
+
+- `scripts/`  
+  Contains build, test, lint, release, and other workflow automation scripts critical to the monorepo development lifecycle.
+
+For an exhaustive layout and inter-package relationships, see [Repository Structure and Packages](#1.1).
+
+Sources: [package.json:1-5](), [package.json:124-145]()
+
+## Feature Flags System
+
+React includes an elaborate feature flag system enabling controlled feature experiments, compatibility with multiple deployment environments, and fine-grained feature rollouts.
+
+The system differentiates between:
+
+- **Static Flags:** These are resolved at build time, producing different bundle variants for open source, Facebook’s internal platform (`www`), native Facebook apps (`native-fb`), and specialized test renderers.
+
+- **Dynamic Flags:** These can be configured at runtime, allowing selective feature gating without rebuilds.
+
+Integration with Facebook's Gatekeeper system and a build forking mechanism allows safe experimentation and deployment of features across React’s broad usage scenarios.
+
+For full details on the fork mechanism, static vs dynamic flags, and Gatekeeper integration, see [Feature Flags System](#1.2).
+
+Sources: [packages/shared/ReactVersion.js:15-15](), [package.json:140-142]()
+
+## How the Pieces Fit Together
+
+The React monorepo architecture is designed for modular separation of concerns and logical layering across code subsystems:
+
+```mermaid
+title "React Monorepo Architecture and Code Entit
+… (669502 chars; full output at agent/mcp/deepwiki-read_wiki_contents-1794930678100.txt)
+# Page: React Repository Overview
+
+# React Repository Overview
+
+<details>
+<summary>Relevant source files</summary>
+
+The following files were used as context for generating this wiki page:
+
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- [README.md](README.md)
+- [package.json](package.json)
+- [packages/eslint-plugin-react-hooks/package.json](packages/eslint-plugin-react-hooks/package.json)
+- [packages/jest-react/package.json](packages/jest-react/package.json)
+- [packages/react-art/package.json](packages/react-art/package.json)
+- [packages/react-devtools-shared/package.json](packages/react-devtools-shared/package.json)
+- [packages/react-dom/package.json](packages/react-dom/package.json)
+- [packages/react-is/package.json](packages/react-is/package.json)
+- [packages/react-reconciler/package.json](packages/react-reconciler/package.json)
+- [packages/react-reconciler/src/__tests__/ActivityReactServer-test.js](packages/react-reconciler/src/__tests__/ActivityReactServer-test.js)
+- [packages/react-test-renderer/package.json](packages/react-test-renderer/package.json)
+- [packages/react/index.development.js](packages/react/index.development.js)
+- [packages/react/index.experimental.development.js](packages/react/index.experimental.development.js)
+- [packages/react/index.experimental.js](packages/react/index.experimental.js)
+- [packages/react/index.fb.js](packages/react/index.fb.js)
+- [packages/react/index.js](packages/react/index.js)
+- [packages/react/index.stable.development.js](packages/react/index.stable.development.js)
+- [packages/react/index.stable.js](packages/react/index.stable.js)
+- [packages/react/package.json](packages/react/package.json)
+- [packages/react/src/ReactClient.js](packages/react/src/ReactClient.js)
+- [packages/react/src/ReactServer.experimental.development.js](packages/react/src/ReactServer.experimental.development.js)
+- [packages/react/src/ReactServer.experimental.js](packages/react/src/ReactServer.experimental.js)
+- [packages/react/src/ReactServer.fb.js](packages/react/src/ReactServer.fb.js)
+- [packages/react/src/ReactServer.js](packages/react/src/ReactServer.js)
+- [packages/scheduler/package.json](packages/scheduler/package.json)
+- [packages/shared/ReactVersion.js](packages/shared/ReactVersion.js)
+- [scripts/flow/config/flowconfig](scripts/flow/config/flowconfig)
+- [scripts/flow/createFlowConfigs.js](scripts/flow/createFlowConfigs.js)
+- [scripts/jest/config.base.js](scripts/jest/config.base.js)
+- [scripts/jest/sizeBalancedSequencer.js](scripts/jest/sizeBalancedSequencer.js)
+- [yarn.lock](yarn.lock)
+
+</details>
+
+
+
+This page provides a high-level introduction to the React monorepo, covering its purpose, major subsystems, package structure, and how the component pieces fit together. It serves as a parent overview linking to detailed child pages for in-depth understanding.
+
+## Purpose and Scope
+
+The React repository houses the core React library, multiple platform-specific renderers, compiler tooling, developer utilities, and the build/test infrastructure in a unified monorepo managed by Yarn workspaces. This unified setup enables coordinated development, consistent dependency management, and streamlined releases of React’s diverse components.
+
+For detailed breakdowns of the monorepo layout and React’s feature flags system, please refer to the child pages [Repository Structure and Packages](#1.1) and [Feature Flags System](#1.2).
+
+Sources: [package.json:1-5](), [README.md:1-8]()
+
+## Major Subsystems and Packages
+
+The monorepo is composed of several major subsystems organized mainly under the `packages/` directory and other top-level folders:
+
+- **Core React Packages**  
+  - `packages/react`: Exposes the primary React public API including hooks, JSX runtimes, and core React abstractions.  
+  - `packages/react-reconciler`: Implements the Fiber reconciler core logic responsible for reconciliation, update scheduling, and coordination with renderers.  
+  - `packages/scheduler`: Provides the prioritized task scheduling infrastructure React uses internally to schedule updates efficiently.
+
+- **Rendering Targets**  
+  Platform-specific renderers bind the reconciler to concrete environments:  
+  - `packages/react-dom`: Implements rendering for the web DOM platform supporting client and server modes.  
+  - `packages/react-test-renderer`: Offers a renderer for snapshot testing React component trees.  
+  - `packages/react-art`: Supports vector graphics rendering using the ART library for Canvas, SVG, and VML.
+
+- **React Compiler**  
+  Housed in the `compiler/` sub-monorepo, this codebase enables static analysis and build-time transformations such as automatic memoization to optimize React components.
+
+- **Developer Tools**  
+  DevTools packages provide runtime inspection, profiling, and debugging capabilities to developers through browser extensions, standalone apps, and inline embed APIs.
+
+- **Build System and Tooling**  
+  The `scripts/` folder contains build pipelines (Rollup-based), test runners (Jest configurations), lint rules, and release orchestration scripts to support monorepo development and publishing.
+
+```mermaid
+title "React Core Packages Dependency Graph"
+graph TD
+  react["packages/react"]
+  reactReconciler["packages/react-reconciler"]
+  scheduler["packages/scheduler"]
+  reactDom["packages/react-dom"]
+  reactTestRenderer["packages/react-test-renderer"]
+  reactArt["packages/react-art"]
+  reactIs["packages/react-is"]
+
+  reactDom --> react
+  reactDom --> scheduler
+  reactTestRenderer --> react
+  reactTestRenderer --> scheduler
+  reactTestRenderer --> reactIs
+  reactArt --> react
+  reactArt --> scheduler
+  reactReconciler --> react
+  reactReconciler --> scheduler
+```
+
+Sources: [packages/react/package.json:1-52](), [packages/react-dom/package.json:19-24](), [packages/react-reconciler/package.json:28-33](), [packages/react-test-renderer/package.json:21-27](), [packages/react-art/package.json:24-31](), [packages/react-is/package.json:1-26]()
+
+## Repository Structure and Packages
+
+The React repository is managed using Yarn Workspaces to enable efficient dependency sharing and versioning across packages. The root `package.json` declares `"packages/*"` as the workspace pattern, which includes all published React packages [package.json:1-5]().
+
+Top-level directories include:
+
+- `packages/`  
+  Contains React's published packages including the core React API, renderers, reconciler, scheduler, and various utilities.
+
+- `compiler/`  
+  The React Compiler sub-monorepo responsible for advanced static analyses and code transformations performed at build time to optimize React components.
+
+- `fixtures/`  
+  Includes integration examples, demos, standalone apps, and test fixtures illustrating React’s capabilities.
+
+- `scripts/`  
+  Contains build, test, lint, release, and other workflow automation scripts critical to the monorepo development lifecycle.
+
+For an exhaustive layout and inter-package relationships, see [Repository Structure and Packages](#1.1).
+
+Sources: [package.json:1-5](), [package.json:124-145]()
+
+## Feature Flags System
+
+React includes an elaborate feature flag system enabling controlled feature experiments, compatibility with multiple deployment environments, and fine-grained feature rollouts.
+
+The system differentiates between:
+
+- **Static Flags:** These are resolved at build time, producing different bundle variants for open source, Facebook’s internal platform (`www`), native Facebook apps (`native-fb`), and specialized test renderers.
+
+- **Dynamic Flags:** These can be configured at runtime, allowing selective feature gating without rebuilds.
+
+Integration with Facebook's Gatekeeper system and a build forking mechanism allows safe experimentation and deployment of features across React’s broad usage scenarios.
+
+For full details on the fork mechanism, static vs dynamic flags, and Gatekeeper integration, see [Feature Flags System](#1.2).
+
+Sources: [packages/shared/ReactVersion.js:15-15](), [package.json:140-142]()
+
+## How the Pieces Fit Together
+
+The React monorepo architecture is designed for modular separation of concerns and logical layering across code subsystems:
+
+```mermaid
+title "React Monorepo Architecture and Code Entit
+… (669502 chars; full output at agent/mcp/deepwiki-read_wiki_contents-1794930678100.txt)

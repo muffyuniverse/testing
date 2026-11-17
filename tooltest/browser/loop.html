@@ -1,0 +1,10 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Loop page</title></head>
+<body>
+<h1>Loop page</h1>
+<p id="s">start</p>
+<button id="go" onclick="spin()">Spin</button>
+<script>
+  function spin() { document.getElementById('s').textContent = 'spinning'; while (true) { Math.sqrt(Math.random()); } }
+</script>
+</body></html>

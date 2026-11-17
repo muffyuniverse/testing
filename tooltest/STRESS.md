@@ -632,3 +632,19 @@ context, so a long exploration is dominated by prompt tokens, not by output.
   immediately following call was skipped — the one after it ran. So a failed call can be inspected
   and turned into a decision without `allow_failure` gymnastics.
 
+## S49. 64 edits is the real ceiling
+
+- A file of 64 unique tokens with **64** `edits` in one call: applied atomically, all 64 changed.
+- With **65** matching edits: **1** "`edits` must contain 1 to 64 replacements." and the file was
+  untouched (first line still `x01`). Clean refusal, not a partial apply.
+- Together with S15 (overlap detection) and the exact-match rule, `edits` is the safest bulk
+  rewrite: all-or-nothing, refuses ambiguity, refuses >64.
+
+## S50. `body_file` is byte-exact
+
+`http` with `body_file:"agent/browser/form1.png"` (49,047 bytes, image/png) POSTed to a capturing
+local server. The capture recorded `body_bytes:49047` and stored the body as
+`agent/serve/cap2/body-…-1.bin`; that file's sha256 equals the source PNG's
+(`a558b869…`). Binary uploads work and the capture does not inline binary into its JSONL — it points
+at a `.bin` file, which is the right shape for large or binary bodies.
+

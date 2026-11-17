@@ -1,0 +1,10 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Alerts</title></head>
+<body>
+<h1>Alerts page</h1>
+<p id="status">loaded</p>
+<button id="b" onclick="document.getElementById('status').textContent = 'clicked';">Click</button>
+<script>
+  window.addEventListener('load', () => { alert('hello from load'); });
+</script>
+</body></html>

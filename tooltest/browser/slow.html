@@ -1,0 +1,12 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Slow page</title></head>
+<body>
+<h1>Slow</h1>
+<div id="out">waiting</div>
+<script>
+  // Content appears after 2 seconds, well after DOMContentLoaded.
+  setTimeout(() => { document.getElementById('out').textContent = 'ready'; }, 2000);
+</script>
+</body>
+</html>

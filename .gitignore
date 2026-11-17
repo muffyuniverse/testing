@@ -27,3 +27,18 @@ extra.txt
 
 # Downloaded media samples for testing editors. Local only: binaries stay out of the repo.
 samples/
+tooltest/data/beta.csv.enc
+tt-pack.zip
+tt-unpack/data/test.sqlite
+tt-unpack/data/test.sqlite-journal
+tt-unpack/stress/nulbyte.txt
+tt-unpack/stress/nulbyte2.txt
+selfcheck.zip
+runlogs/0_build.txt
+runlogs/build/3_Signing keystore (generated once, then reused).txt
+runlogs/build/5_Android SDK.txt
+runlogs/build/7_Build release APK.txt
+runlogs2/0_build.txt
+runlogs2/build/3_Signing keystore (generated once, then reused).txt
+runlogs2/build/5_Android SDK.txt
+runlogs2/build/7_Build release APK.txt
