@@ -36,7 +36,7 @@ import java.util.function.Consumer;
 public final class Updater {
 
     public static final String DEFAULT_MANIFEST =
-            "https://raw.githubusercontent.com/muffyuniverse/testing/main/app/update/version.json";
+            "https://api.github.com/repos/muffyuniverse/testing/contents/app/update/version.json";
 
     private static final String PREFS = "selfdebug";
     private static final String KEY_URL = "manifest_url";
@@ -265,6 +265,8 @@ public final class Updater {
         c.setReadTimeout(20000);
         c.setRequestProperty("User-Agent", "SelfDebug");
         c.setRequestProperty("Cache-Control", "no-cache");
+        // The contents API returns the file itself with this Accept header, and is never CDN-cached.
+        c.setRequestProperty("Accept", "application/vnd.github.raw");
         try (InputStream in = c.getInputStream();
              ByteArrayOutputStream bo = new ByteArrayOutputStream()) {
             byte[] buf = new byte[16384];
