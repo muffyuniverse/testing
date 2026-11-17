@@ -345,3 +345,107 @@ From `agent_rows` (own conversation), grouped by tool and total tokens spent:
   same pattern against 250k a's was killed at the 180 s foreground limit. There is no regex time
   budget — only "foreground gives up, background keeps burning a core".
 
+## S22. Git: optimistic checks, restore, ignored paths
+
+- `write` with `if_sha256` set to a digest measured before a **background job** appended to the file
+  → **1** "The file changed since its SHA-256 was measured; nothing was changed." The check is a
+  real compare-and-swap, not a formality.
+- `restore` with `path` + `revision` + `keep:true` put one file back to an older commit, left the
+  change staged ("put tooltest/stress/restore-test.txt back"), and `status` showed it as a normal
+  staged modification. The rest of the working tree was untouched.
+- `commit` with a path that is ignored and untracked → **1** "`extra.txt` is ignored and untracked;
+  nothing was committed." No silent skip.
+- `commit` with `paths` naming a folder commits every changed file under it (31 paths in one go).
+- `commit` with nothing changed → "Nothing to commit; no new local commit was made."
+- `pull` with staged local work and an up-to-date remote → "Already up to date", no disturbance.
+- `tag create` makes a local tag only ("It has not been sent"); there is no `tag delete` action, so
+  a mistaken tag stays until the person removes it.
+
+## S23. Sealing with a vault secret
+
+- `archive seal:true key:"<secret name>"` accepted the **name** of a vault secret, produced
+  `tooltest/data/beta.csv.enc` (109 bytes, aes-256-gcm) beside the source, and `seal:false` with the
+  same key opened it back to the exact 48 bytes.
+- A wrong key → **1** "Authentication failed: this key does not open it, or the sealed file was
+  altered." AEAD tamper/wrong-key detection behaves as advertised.
+- The sealed file is written next to the source (`<path>.enc`), not into the project root; the
+  opened file honours `name` and lands in the project root.
+
+## S24. Big answers are filed, not quoted
+
+- `http GET https://raw.githubusercontent.com/torvalds/linux/master/MAINTAINERS` → 200, body
+  **935.0 kB**, and the tool answered only "The answer is 935.0 kB and is filed, not quoted. It is
+  at agent/http/MAINTAINERS-621b9b". The file held the real content (checked a character slice).
+  So a large `http` body costs a line of context, not a megabyte — good.
+- `mcp` is not as careful: a `context7 query-docs` answer (~1.5 k tokens of code) was printed in
+  full and also saved. Same for `deepwiki read_wiki_contents` (8 kB). A pipe can hide it
+  (`{"tool":"mcp", ...}` → `write` → `read info`), but the default reply is the whole payload.
+- `browse` truncates by lines and points at the saved page; `example.com` loaded, while
+  `example.org` and `en.wikipedia.org` both timed out ("did not finish loading"). External browsing
+  is not reliable enough to depend on for verification.
+
+## S25. Watching the MCP handshake with a local mock
+
+`serve` with `capture:true` plus a `mcp/` config pointing at it makes the client's protocol visible.
+The client sends, in order:
+
+1. `POST /mcp` `initialize` (id 1, protocolVersion 2025-06-18, clientInfo `pechka`/1)
+2. `POST /mcp` `notifications/initialized` (no id) **with** `mcp-session-id` taken from the
+   initialize response header
+3. `POST /mcp` `tools/list` with **id 5** and `mcp-protocol-version` + `mcp-session-id` headers
+
+A static route cannot answer both id 1 and id 5, so the mock fails with "The endpoint did not return
+a valid MCP tools/list response." — i.e. responses are matched by JSON-RPC id, as they should be.
+`serve` routes match on method+path only, not on body, so it can play a one-shot server but not a
+multi-call JSON-RPC one. (Config removed again so no dead endpoint is left behind.)
+
+## S26. Driving a form end to end
+
+Built `tooltest/browser/form.html` (input, Add/Clear buttons, a counter, clickable rows) and drove it:
+
+| step | answer |
+|---|---|
+| `browse` with `url` + `session:"form1"` | opens the tab, returns the page text |
+| `snapshot` | `[e1] input[text] "Name"`, `[e2] button "Add"`, `[e3] button "Clear"` — only interactive elements get refs |
+| `type` `[e1]` "First item" | `[action: Typed into Name]` |
+| `press` `Enter` | `[action: Dispatched synthetic Enter; browser default actions are not guaranteed.]` — the page's keydown handler ran, Count became 1 |
+| `type` + `click` `[e2]` | Count became 2 |
+| `read` | shows both rows and the counter |
+| `click` `text:First item` | **1** "No matching element on page" — `text:` does not find a plain `div` |
+| `click` `#list div` | works: `[action: Clicked First item]`; the row's class became `done` (checked by `eval`) |
+| `js:` as a **click** target | **1** "No matching element" — `js:` only works for `wait_for` |
+| `wait_for` `#never-appears` | **1** "Timed out waiting for `#never-appears` on page." |
+| `wait_for` `js:document.getElementById('count').textContent === '2'` | returns immediately |
+| `scroll` 3000 on a 93,940 px page | `[action: Scrolled (3000px)]`; `eval` confirms `3000/93940` |
+
+Notes: `read` always returns the whole DOM text, not the viewport, so scrolling does not change what
+`read` shows (only screenshots show the viewport). Console errors accumulate on the page and are
+repeated in every later `snapshot`/`read` under `## console`.
+
+## S27. `browse` eval: what actually works
+
+| eval code | result |
+|---|---|
+| `return document.title` | **1** `SyntaxError: Illegal return statement` — although the help says `return` is supported |
+| `document.title` | status 0, **empty** value |
+| `(() => document.title)()` | `Form test` — an IIFE is the reliable way to get a value |
+| `await new Promise(r => setTimeout(r, 100)); document.title` | status 0, empty (await is accepted, the trailing value is lost) |
+| `const d = ...; d.className` | status 0, empty, but the side effects run |
+
+So: wrap the expression in a function to read a value, and do not use `return`.
+
+## S28. A stuck tab vs a stuck engine
+
+- `browse` of `https://192.0.2.1/` (blackholed) → "The page did not finish loading before the
+  timeout" after ~60 s. A following local `browse` worked immediately, so a one-shot timeout is
+  harmless.
+- `http://192.0.2.1/` → `net::ERR_CLEARTEXT_NOT_PERMITTED`: plain http to a non-local host is
+  blocked by Android; only https and localhost work.
+- Earlier, after a **session** load timed out twice (plus two external one-shot timeouts), every
+  later `browse` — including one-shot local pages — timed out until that session was closed. That
+  wedge was observed once and could not be reproduced on demand with a single stuck session, so
+  treat "close the session after a timeout" as the safe habit rather than a proven rule.
+- `browse` `open` is refused on the built-in browser: "`open` requires Firefox, a URL and no
+  session; new tabs must be enabled in the extension." A session is created by passing `url` with a
+  `session` name instead.
+
