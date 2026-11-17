@@ -622,3 +622,13 @@ context, so a long exploration is dominated by prompt tokens, not by output.
   means appending to a file that ends with `\n` starts a new line, while appending to one that does
   not continues the same line. Verified both.
 
+## S48. `stop` scoping, exactly
+
+- Inside a nested pipe, `stop` with `sequence:1` skipped **one** step of that inner block, the next
+  inner step ran, and the outer pipe carried on with the inner block's last result. `sequence` is
+  scoped to the block that contains it.
+- At top level, `stop` with `value:{"toolcall_result":1}` matched the *failure body* of a call that
+  returned status 1 ("There is no file at ..."), answered "skipping the next 1 calls", and only the
+  immediately following call was skipped — the one after it ran. So a failed call can be inspected
+  and turned into a decision without `allow_failure` gymnastics.
+
